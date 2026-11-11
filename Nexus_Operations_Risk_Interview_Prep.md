@@ -429,6 +429,43 @@ python -m pytest -v test_engines.py
 
 ---
 
+### Q20: "What does ACID mean in the context of your SQLite audit log? Explain it simply."
+**Answer:**
+> "In simple terms, **ACID** is the database guarantee of **'All-or-Nothing'** so financial and operational data never gets corrupted:
+> - **Atomicity (All-or-Nothing):** Like an ATM transfer—if you send \$100 to a friend and the network drops after the money leaves your account, the database rolls back so your money isn't lost into thin air.
+> - **Consistency:** Every record strictly adheres to schema rules and data types.
+> - **Isolation:** Concurrent requests never overwrite or interleave with each other.
+> - **Durability:** Once committed, records are permanently written to disk.
+>
+> In Nexus, when the triage engine logs an operational decision, it commits the entire complete audit entry (`request_id`, category, extracted invoice, remediation actions, and timestamp) in a single atomic transaction. If the server crashes halfway through, it rolls back cleanly rather than leaving a corrupted, half-saved entry in the audit trail."
+
+---
+
+### Q21: "What exact scenarios are covered in your 8 automated tests, and why did you build them?"
+**Answer:**
+> "Our test suite in `test_engines.py` runs 8 automated unit and integration tests executing in ~0.15s:
+> 1. `test_billing_dispute_branch`: Ingests an overcharge complaint, verifies classification as 'Billing Dispute', extracts invoice `INV-1092` and amount `\$450.00`, and provisions credit holds and email drafts.
+> 2. `test_technical_escalation_branch`: Ingests an API crash, verifies 'High' urgency, and extracts HTTP `502` error codes for SRE paging.
+> 3. `test_general_inquiry_branch`: Ingests a pricing question, classifies as 'General Inquiry', and retrieves knowledge base links.
+> 4. `test_audit_logging_persistence`: Confirms atomic SQLite database writes and reads back verified JSON action payloads.
+> 5. `test_structuring_and_jurisdiction_signals`: Feeds multi-hop transfers to Panama/Caymans under \$10k, verifying structuring detection and +25 pt haven scoring.
+> 6. `test_clean_transaction_profile`: Feeds routine domestic retail purchases, verifying a 0 / 100 score (Low Risk).
+> 7. `test_csv_parser`: Ingests messy real-world headers (`txn_amount`, `dest`) with dirty strings (`\$9,500.00`), proving alias mapping and regex sanitization work without crashing.
+> 8. `test_natural_language_query_interface`: Tests conversational queries (*'Show wires over 9000'*), verifying filtered record counts and volume sums.
+>
+> We built them to establish **100% regression safety** during rapid iteration and to provide **empirical proof** to interviewers that our engines are production-stable."
+
+---
+
+### Q22: "How do you discuss your prototype's technical claims honestly with senior engineers without overstating them?"
+**Answer:**
+> "Senior architects immediately spot hype and respect precise, honest engineering language. We follow three strict phrasing guidelines:
+> 1. **Persistent Audit Log vs. 'Immutable Ledger':** SQLite is a robust relational SQL database, but it is not a cryptographic write-once blockchain. We accurately describe it as an *'ACID-compliant, persistent audit log'* rather than claiming absolute immutability.
+> 2. **Constraining Variance vs. 'Eliminating Hallucinations':** Setting `temperature=0.0` and using Pydantic schemas strictly constrains stochastic randomness and enforces data types, but no software can claim to eliminate all AI hallucinations. We describe it as *'deterministic fallback and runtime schema contract enforcement'*.
+> 3. **Automated SAR Recommendation vs. 'Mandatory SAR Filing':** By law, software cannot file a mandatory SAR on its own; legal responsibility rests solely with a certified human BSA/AML compliance officer. We accurately describe our system as *'generating prioritized SAR recommendations and automated compliance dossiers for human sign-off'*."
+
+---
+
 ## 6. LIVE FEATURE EXTENSION PLAYBOOK (4 Step-by-Step Copy-Paste Recipes)
 
 If an interviewer asks you to extend the system live on screen during the call, use these proven, copy-paste recipes:
