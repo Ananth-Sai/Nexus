@@ -1,24 +1,62 @@
 [
   {
-    "scenario_id": "billing_dispute_1",
-    "title": "Scenario 1: Critical Billing Overcharge & Double Debit",
-    "sender": "elena.rostova@acmefinance.com",
-    "category_hint": "Billing Dispute",
-    "text": "URGENT: I was double-charged on invoice INV-88942 for our enterprise subscription. The charge of $4,950.00 was debited twice from our corporate card this morning. Please reverse the duplicate charge immediately and confirm credit. This is holding up our monthly account reconciliation."
+    "category": "Billing Dispute",
+    "scenarios": [
+      {
+        "title": "Duplicate Corporate Charge ($4,950)",
+        "sender": "elena.rostova@acmefinance.com",
+        "text": "URGENT: I was double-charged on invoice INV-88942 for our enterprise subscription. The charge of $4,950.00 was debited twice from our corporate card this morning. Please reverse the duplicate charge immediately and confirm credit!"
+      },
+      {
+        "title": "Annual Subscription Refund After Cancellation ($1,200)",
+        "sender": "marcus.todd@apexretail.io",
+        "text": "Hello, our team cancelled our annual plan last week, but invoice INV-41029 for $1,200.00 was still charged to our account yesterday. Kindly process a full refund to our original payment method as per your 30-day money-back policy."
+      },
+      {
+        "title": "Unauthorized Add-on Fee Dispute ($680)",
+        "sender": "billing-support@cloudscale.net",
+        "text": "We are disputing invoice INV-99310. An unexpected overage charge of $680.00 appeared on our statement without prior notification. We request an immediate ledger review and credit adjustment."
+      }
+    ]
   },
   {
-    "scenario_id": "technical_incident_1",
-    "title": "Scenario 2: Critical Production API Outage (500 Error)",
-    "sender": "devops-leads@globalpay.io",
-    "category_hint": "Technical Escalation",
-    "text": "CRITICAL EMERGENCY: The Payment Checkout API gateway is returning HTTP 500 Internal Server Errors across all US-East clusters. Error code ERR_GATEWAY_TIMEOUT_504 is spiking to 87%. Our merchant checkouts are completely blocked! Escalate to on-call infrastructure lead immediately!"
+    "category": "Technical Escalation",
+    "scenarios": [
+      {
+        "title": "Production Checkout API 500 Crash",
+        "sender": "devops-lead@globalpay.io",
+        "text": "CRITICAL EMERGENCY: The Payment Checkout API gateway is returning HTTP 500 Internal Server Errors across all US-East clusters. Error code ERR_GATEWAY_TIMEOUT_504 is spiking to 87%. Our merchant checkouts are completely blocked!"
+      },
+      {
+        "title": "Database Connection Pool Deadlock",
+        "sender": "sre-alerts@fintechcore.com",
+        "text": "SEV-1 ALERT: Primary PostgreSQL read-replica cluster is in an active deadlock loop. All authentication microservices are timing out with 503 Service Unavailable. User logins are failing worldwide!"
+      },
+      {
+        "title": "Single Sign-On (SSO) SAML Token Failure",
+        "sender": "it-ops@enterprise-vault.org",
+        "text": "URGENT ESCALATION: Okta and Azure AD SSO logins have completely failed across our organization. 1,400 employees are locked out of the core dashboard with error ERR_SAML_HANDSHAKE_INVALID."
+      }
+    ]
   },
   {
-    "scenario_id": "general_inquiry_1",
-    "title": "Scenario 3: Standard Account Feature Inquiry",
-    "sender": "marcus.vance@innovatetech.org",
-    "category_hint": "General Inquiry",
-    "text": "Hello, our compliance team is evaluating your platform for our Q1 expansion. Could you clarify whether your audit logging module supports role-based access control (RBAC) and data retention exports in JSON format? Also, what are your standard support operating hours?"
+    "category": "General Inquiry",
+    "scenarios": [
+      {
+        "title": "Security & GDPR Audit Logging Standards",
+        "sender": "compliance-officer@securehealth.de",
+        "text": "Hello, our security team is reviewing your compliance posture. Could you provide your SOC2 Type II report and clarify whether your audit ledger supports GDPR data deletion workflows and immutable JSON exports?"
+      },
+      {
+        "title": "API Rate Limits & Webhook Retry Policies",
+        "sender": "lead-architect@appflow.co",
+        "text": "Hi Support team, we are planning our production rollout next month. What are the standard rate limits for the batch ingestion endpoints, and does your webhook dispatcher use exponential backoff for retries?"
+      },
+      {
+        "title": "Multi-Tenant Role-Based Access Control (RBAC)",
+        "sender": "workspace-admin@saasgroup.com",
+        "text": "Good day, does your enterprise tier allow custom RBAC role creation with granular read/write scopes for audit logs, or are we limited to predefined Admin and Member roles?"
+      }
+    ]
   }
 ]
-
