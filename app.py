@@ -21,24 +21,21 @@ from risk_engine import (
     HIGH_RISK_JURISDICTIONS
 )
 
-# Page Configuration
+# Page Configuration - Single explicit call at the very top
 st.set_page_config(
     page_title="Nexus Operations & Compliance Mission Control",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Bespoke, High-Contrast Console Styling (Anti-Vibe-Coded: No purple, no sparkles, strict 8pt grid)
-st.markdown("""
+# Clean, structured CSS stylesheet
+CUSTOM_CSS = """
 <style>
-    /* Global Page Structure */
     .block-container {
         padding-top: 1.5rem;
         padding-bottom: 2.5rem;
         max-width: 1380px;
     }
-
-    /* Top Console Header */
     .console-header {
         display: flex;
         justify-content: space-between;
@@ -70,8 +67,6 @@ st.markdown("""
         font-weight: 600;
         letter-spacing: 0.03em;
     }
-
-    /* Split-screen panels */
     .panel-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -90,8 +85,6 @@ st.markdown("""
         padding-bottom: 8px;
         margin-bottom: 14px;
     }
-
-    /* Metric Badges */
     .kpi-tile {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -107,13 +100,11 @@ st.markdown("""
         letter-spacing: 0.05em;
     }
     .kpi-val {
-        font-size: 1.45rem;
+        font-size: 1.35rem;
         font-weight: 700;
         color: #0f172a;
         margin-top: 2px;
     }
-
-    /* Vertical Remediation Timeline Stepper */
     .timeline-step {
         display: flex;
         margin-bottom: 12px;
@@ -151,8 +142,6 @@ st.markdown("""
         margin-top: 3px;
         line-height: 1.35;
     }
-
-    /* Semantic Tag Badges */
     .chip-critical {
         background: #fee2e2;
         color: #991b1b;
@@ -189,8 +178,6 @@ st.markdown("""
         border-radius: 4px;
         border: 1px solid #bbf7d0;
     }
-
-    /* Action Banner */
     .banner-danger {
         background: #fef2f2;
         border-left: 5px solid #dc2626;
@@ -210,7 +197,8 @@ st.markdown("""
         margin-bottom: 14px;
     }
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
 def load_sample_requests():
@@ -223,15 +211,16 @@ def load_sample_requests():
 
 # Top Command Bar Header
 api_indicator = "Hybrid (GenAI Live)" if os.environ.get("GEMINI_API_KEY") else "Deterministic Rule Engine (Active)"
-st.markdown(f"""
-<div class="console-header">
-    <div>
-        <div class="console-title">Nexus Operations & Compliance Mission Control</div>
-        <div class="console-sub">Multi-Branch Workflow Orchestration & Financial AML Signal Aggregation</div>
-    </div>
-    <div class="status-pill">{api_indicator}</div>
-</div>
-""", unsafe_allow_html=True)
+header_html = (
+    '<div class="console-header">'
+    '  <div>'
+    '    <div class="console-title">Nexus Operations & Compliance Mission Control</div>'
+    '    <div class="console-sub">Multi-Branch Workflow Orchestration & Financial AML Signal Aggregation</div>'
+    '  </div>'
+    f'  <div class="status-pill">{api_indicator}</div>'
+    '</div>'
+)
+st.markdown(header_html, unsafe_allow_html=True)
 
 # Primary Module Navigation Switcher
 active_tab = st.radio(
@@ -253,15 +242,13 @@ st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 if "Operational" in active_tab:
     sample_requests = load_sample_requests()
 
-    # Split-Screen Layout: Left = Intake & Feed; Right = Execution & Telemetry
     left_col, right_col = st.columns([5, 6], gap="large")
 
     with left_col:
-        st.markdown("""
-        <div class="panel-card">
-            <div class="panel-title">Inbound Request Dispatcher</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="panel-card"><div class="panel-title">Inbound Request Dispatcher</div></div>',
+            unsafe_allow_html=True
+        )
 
         st.caption("Select a pre-configured enterprise scenario or submit a custom intake payload:")
         btn_c1, btn_c2, btn_c3 = st.columns(3)
@@ -294,13 +281,11 @@ if "Operational" in active_tab:
             )
             dispatch_btn = st.form_submit_button("Trigger Autonomous Triage", type="primary", width="stretch")
 
-        # Historical Audit Stream
         st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-        st.markdown("""
-        <div class="panel-card">
-            <div class="panel-title">Operations Audit Ledger</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="panel-card"><div class="panel-title">Operations Audit Ledger</div></div>',
+            unsafe_allow_html=True
+        )
         records = get_audit_records(limit=8)
         if records:
             df = pd.DataFrame(records)[["timestamp", "request_id", "category", "urgency", "assigned_queue", "sla_hours"]]
@@ -309,13 +294,11 @@ if "Operational" in active_tab:
             st.caption("No historical requests recorded in database yet.")
 
     with right_col:
-        st.markdown("""
-        <div class="panel-card">
-            <div class="panel-title">Remediation Execution Telemetry</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="panel-card"><div class="panel-title">Remediation Execution Telemetry</div></div>',
+            unsafe_allow_html=True
+        )
 
-        # Run or use default execution on first load
         req_to_process = text_val if dispatch_btn else st.session_state.get("v1_text", "URGENT: I was double-charged on invoice INV-88942 for $4,950.00. Please reverse immediately!")
         sender_to_process = sender_val if dispatch_btn else st.session_state.get("v1_sender", "elena.rostova@acmefinance.com")
 
@@ -326,54 +309,45 @@ if "Operational" in active_tab:
         urgency_class = "chip-critical" if result.classification.urgency == "Critical" else ("chip-high" if result.classification.urgency == "High" else "chip-normal")
 
         with kpi_c1:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Category</div>
-                <div class="kpi-val" style="font-size: 1.05rem;">{result.classification.category}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Category</div><div class="kpi-val" style="font-size: 1.0rem;">{result.classification.category}</div></div>',
+                unsafe_allow_html=True
+            )
         with kpi_c2:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Urgency</div>
-                <div class="kpi-val"><span class="{urgency_class}">{result.classification.urgency}</span></div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Urgency</div><div class="kpi-val"><span class="{urgency_class}">{result.classification.urgency}</span></div></div>',
+                unsafe_allow_html=True
+            )
         with kpi_c3:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Target Queue</div>
-                <div class="kpi-val" style="font-size: 0.95rem;">{result.assigned_queue}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Target Queue</div><div class="kpi-val" style="font-size: 0.92rem;">{result.assigned_queue}</div></div>',
+                unsafe_allow_html=True
+            )
         with kpi_c4:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">SLA Window</div>
-                <div class="kpi-val">{result.sla_hours} <span style="font-size: 0.8rem; color: #64748b;">Hrs</span></div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">SLA Window</div><div class="kpi-val">{result.sla_hours} <span style="font-size: 0.8rem; color: #64748b;">Hrs</span></div></div>',
+                unsafe_allow_html=True
+            )
 
         st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
-
-        # Vertical Execution Stepper
         st.markdown(f"**Branch Invocation:** `{result.remediation_branch}` (Ticket: `{result.request_id}`)")
 
+        # Vertical Stepper
         for step in result.steps_executed:
-            st.markdown(f"""
-            <div class="timeline-step">
-                <div class="timeline-num">{step.step_number}</div>
-                <div class="timeline-content">
-                    <div class="timeline-step-title">{step.action_name} <span class="chip-safe" style="float: right;">{step.status}</span></div>
-                    <div class="timeline-step-desc">{step.description}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            step_html = (
+                '<div class="timeline-step">'
+                f'  <div class="timeline-num">{step.step_number}</div>'
+                '  <div class="timeline-content">'
+                f'    <div class="timeline-step-title">{step.action_name} <span class="chip-safe" style="float: right;">{step.status}</span></div>'
+                f'    <div class="timeline-step-desc">{step.description}</div>'
+                '  </div>'
+                '</div>'
+            )
+            st.markdown(step_html, unsafe_allow_html=True)
 
         if result.classification.key_entities:
             st.markdown(f"**Extracted Entities:** `{json.dumps(result.classification.key_entities)}`")
 
-        # Tailored Response Draft Card
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         st.markdown("**Tailored Customer Communication (Prepared for Dispatch):**")
         st.text_area("Draft Communication:", value=result.draft_response, height=170, label_visibility="collapsed")
@@ -383,13 +357,11 @@ if "Operational" in active_tab:
 # VIEW 2: FINANCIAL RISK SIGNAL AGGREGATOR & AML TERMINAL
 # ==============================================================================
 else:
-    st.markdown("""
-    <div class="panel-card">
-        <div class="panel-title">Financial Crime & AML Risk Assessment Console</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="panel-card"><div class="panel-title">Financial Crime & AML Risk Assessment Console</div></div>',
+        unsafe_allow_html=True
+    )
 
-    # Preset Loaders
     pcol1, pcol2 = st.columns(2)
     load_high_risk = False
     load_clean = False
@@ -428,7 +400,6 @@ else:
         st.session_state["v2_pep"] = True
         st.session_state["v2_tenure"] = 1
 
-    # Ingestion Controls
     meta_c1, meta_c2, meta_c3, meta_c4 = st.columns(4)
     with meta_c1:
         acc_id_input = st.text_input("Entity Account ID:", value=st.session_state.get("v2_acc", "ACC-9041"))
@@ -439,7 +410,6 @@ else:
     with meta_c4:
         tenure_input = st.number_input("Account Age (Months):", min_value=1, max_value=240, value=st.session_state.get("v2_tenure", 1))
 
-    # Split-Screen Cockpit
     fin_left, fin_right = st.columns([5, 6], gap="large")
 
     with fin_left:
@@ -462,59 +432,45 @@ else:
         }
         profile = FinancialRiskAggregator.analyze_dataset(parsed_txs, account_meta)
 
-        # Risk Scoreboard KPIs
         score_class = "chip-critical" if profile.risk_score >= 70 else ("chip-high" if profile.risk_score >= 45 else ("chip-normal" if profile.risk_score >= 20 else "chip-safe"))
         sc1, sc2, sc3, sc4 = st.columns(4)
         with sc1:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Risk Score</div>
-                <div class="kpi-val">{profile.risk_score} <span style="font-size: 0.8rem; color: #64748b;">/ 100</span></div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Risk Score</div><div class="kpi-val">{profile.risk_score} <span style="font-size: 0.8rem; color: #64748b;">/ 100</span></div></div>',
+                unsafe_allow_html=True
+            )
         with sc2:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Priority Tier</div>
-                <div class="kpi-val"><span class="{score_class}">{profile.risk_level}</span></div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Priority Tier</div><div class="kpi-val"><span class="{score_class}">{profile.risk_level}</span></div></div>',
+                unsafe_allow_html=True
+            )
         with sc3:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Volume USD</div>
-                <div class="kpi-val" style="font-size: 1.15rem;">${profile.total_volume_usd:,.0f}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Volume USD</div><div class="kpi-val" style="font-size: 1.15rem;">${profile.total_volume_usd:,.0f}</div></div>',
+                unsafe_allow_html=True
+            )
         with sc4:
-            st.markdown(f"""
-            <div class="kpi-tile">
-                <div class="kpi-label">Alert Count</div>
-                <div class="kpi-val">{len(profile.flagged_signals)}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="kpi-tile"><div class="kpi-label">Alert Count</div><div class="kpi-val">{len(profile.flagged_signals)}</div></div>',
+                unsafe_allow_html=True
+            )
 
         st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
 
-        # Action Recommendation Callout
         if profile.risk_score >= 45:
-            st.markdown(f"""
-            <div class="banner-danger">
-                <strong>MANDATORY ACTION:</strong> {profile.recommended_action}
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="banner-danger"><strong>MANDATORY ACTION:</strong> {profile.recommended_action}</div>',
+                unsafe_allow_html=True
+            )
         else:
-            st.markdown(f"""
-            <div class="banner-success">
-                <strong>COMPLIANCE STATUS:</strong> {profile.recommended_action}
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="banner-success"><strong>COMPLIANCE STATUS:</strong> {profile.recommended_action}</div>',
+                unsafe_allow_html=True
+            )
 
-        # AI Compliance Narrative
         st.markdown("**AI Compliance Officer Narrative Rationale:**")
         st.info(profile.ai_narrative_summary)
 
-        # Flagged Signals Breakdown Table
         st.markdown("**Identified Risk Signals & Threat Vectors:**")
         if profile.flagged_signals:
             sig_list = []
