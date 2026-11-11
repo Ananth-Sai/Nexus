@@ -391,6 +391,19 @@ python -m pytest -v test_engines.py
 
 ---
 
+### Q17: "How did you generate the 5-slide presentation decks, and how do they map to the evaluation rubric?"
+**Answer:**
+> "Both take-home briefs explicitly specified a 5-slide deck structure:
+> 1. Problem Understanding & Executive Objective
+> 2. System Architecture & Workflow / Data Flow
+> 3. Implementation Highlights & Engineering Decisions
+> 4. Challenges, Edge Cases & Learnings
+> 5. Demo Summary, Production Next Steps & Future Enhancements
+>
+> Rather than manually formatting slides, we built an automated Python compilation script (`build_slide_decks.py`) using `python-pptx`. It programmatically generates two native 16:9 widescreen PowerPoint presentations (`Nexus_Workflow_Triage_Deck.pptx` and `Nexus_Financial_Risk_Deck.pptx`) with executive dark-slate card surfaces, high-contrast typography, and bulleted takeaways directly from our markdown documentation."
+
+---
+
 ## 6. LIVE FEATURE EXTENSION PLAYBOOK (4 Step-by-Step Copy-Paste Recipes)
 
 If an interviewer asks you to extend the system live on screen during the call, use these proven, copy-paste recipes:
