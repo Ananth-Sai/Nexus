@@ -385,6 +385,12 @@ python -m pytest -v test_engines.py
 
 ---
 
+### Q16: "How do you summarize this project in one sentence (GitHub / Portfolio description)?"
+**Answer:**
+> "Nexus AI is an autonomous operations triage and financial AML risk intelligence suite combining hybrid GenAI classification, multi-rule fraud scoring (0–100), immutable SQLite audit logging, and natural language ledger interrogation."
+
+---
+
 ## 6. LIVE FEATURE EXTENSION PLAYBOOK (4 Step-by-Step Copy-Paste Recipes)
 
 If an interviewer asks you to extend the system live on screen during the call, use these proven, copy-paste recipes:
@@ -490,3 +496,4 @@ with q_col5:
         preset_q = "Show transactions over 20000"
 ```
 3. Save and refresh. The interrogation engine handles the numerical query automatically!
+
