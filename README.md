@@ -29,7 +29,7 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 ```bash
 python -m pytest -v test_engines.py
 ```
-*(7 of 7 automated unit & integration tests pass with 0 warnings).*
+*(8 of 8 automated unit & integration tests pass with 0 warnings).*
 
 ---
 
@@ -158,7 +158,7 @@ A1/
 ├── app.py                     # Multi-page Streamlit application
 ├── workflow_engine.py         # Request triage, branching & audit engine
 ├── risk_engine.py             # AML data aggregation, anomaly scoring & narrative engine
-├── test_engines.py            # Pytest test suite (7 tests)
+├── test_engines.py            # Pytest test suite (8 tests)
 ├── sample_requests.json       # Mock customer requests for 1-click testing
 ├── sample_financial_data.csv  # Mock transaction records
 ├── sample_external_alerts.json# Mock external watchlist hits

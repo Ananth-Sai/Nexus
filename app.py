@@ -216,7 +216,7 @@ def format_transaction_df(tx_list):
 
 # Top Header
 st.title("Nexus Operations & Risk Platform")
-st.caption("Select an assignment module below to test its autonomous decisioning in 3 simple steps.")
+st.caption("Select an enterprise intelligence module below to test its autonomous decisioning in 3 simple steps.")
 
 # Module Selector
 active_tab = st.radio(
