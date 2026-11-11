@@ -263,7 +263,125 @@ class FinancialRiskAggregator:
         )
 
     @classmethod
+    def query_transactions(cls, transactions: List[Dict[str, Any]], query_text: str) -> Dict[str, Any]:
+        """
+        Interrogates transaction records using natural language queries.
+        Filters matching rows and returns a plain-English explanation.
+        """
+        if not transactions or not query_text.strip():
+            return {"answer": "No query provided.", "matched_txs": transactions, "total_matched": len(transactions)}
+
+        q_lower = query_text.lower().strip()
+        matched: List[Dict[str, Any]] = []
+
+        # 1. Check for threshold / amount queries (e.g. "> 9000", "over 9,000", "greater than 5000")
+        amount_match = re.search(r'(?:>|over|greater than|above|exceeding)\s*\$?(\d+(?:,\d{3})*(?:\.\d{2})?)', q_lower)
+        if amount_match:
+            thresh = float(amount_match.group(1).replace(",", ""))
+            matched = [t for t in transactions if float(t.get("amount", 0.0)) > thresh]
+            tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
+            answer = f"Found {len(matched)} transaction(s) with an amount exceeding ${thresh:,.2f}, totaling ${tot_val:,.2f}."
+            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+
+        # 2. Check for offshore / haven queries
+        if any(w in q_lower for w in ["offshore", "haven", "cayman", "panama", "seychelles", "cyprus", "vanuatu"]):
+            matched = [
+                t for t in transactions
+                if t.get("destination_country") in HIGH_RISK_JURISDICTIONS or t.get("source_country") in HIGH_RISK_JURISDICTIONS
+            ]
+            tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
+            dest_list = list({t.get("destination_country") for t in matched if t.get("destination_country")})
+            answer = f"Found {len(matched)} transaction(s) linked to high-risk offshore jurisdictions ({', '.join(dest_list)}), totaling ${tot_val:,.2f}."
+            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+
+        # 3. Check for structuring / smurfing queries (near $10k)
+        if any(w in q_lower for w in ["structuring", "smurfing", "under 10k", "below 10,000", "10000"]):
+            matched = [t for t in transactions if 8500.0 <= float(t.get("amount", 0.0)) < 10000.0]
+            tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
+            answer = f"Found {len(matched)} transaction(s) structured just beneath the $10,000 reporting threshold, totaling ${tot_val:,.2f}."
+            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+
+        # 4. Check for total volume / sum queries
+        if any(w in q_lower for w in ["total", "volume", "sum", "how much"]):
+            tot_val = sum(float(t.get("amount", 0.0)) for t in transactions)
+            answer = f"The account has a total transaction volume of ${tot_val:,.2f} across all {len(transactions)} record(s)."
+            return {"answer": answer, "matched_txs": transactions, "total_matched": len(transactions)}
+
+        # 5. Fallback keyword filter
+        keywords = [w for w in q_lower.split() if len(w) > 3 and w not in ["show", "find", "what", "which", "with", "where"]]
+        if keywords:
+            matched = [
+                t for t in transactions
+                if any(kw in str(val).lower() for kw in keywords for val in t.values())
+            ]
+            answer = f"Found {len(matched)} transaction(s) matching keyword(s) '{', '.join(keywords)}'."
+            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+
+        return {
+            "answer": f"Displaying all {len(transactions)} transaction record(s).",
+            "matched_txs": transactions,
+            "total_matched": len(transactions)
+        }
+
+    @classmethod
     def parse_csv_transactions(cls, csv_text: str) -> List[Dict[str, Any]]:
+        """
+        Parses CSV text into a structured list of transactions.
+        Intelligently auto-maps varying column names (e.g. txn_amt, value, destination, etc.)
+        and sanitizes monetary strings ($9,500.00 -> 9500.0).
+        """
+        if not csv_text or not csv_text.strip():
+            return []
+
+        reader = csv.DictReader(io.StringIO(csv_text.strip()))
+        txs: List[Dict[str, Any]] = []
+
+        # Canonical aliases
+        amount_aliases = {"amount", "amt", "txn_amount", "txn_amt", "value", "total", "sum", "debit"}
+        dest_aliases = {"destination_country", "destination", "dest", "country", "receiver_country", "target_country", "beneficiary_country"}
+        id_aliases = {"tx_id", "id", "txn_id", "reference", "ref", "trans_id"}
+
+        for row in reader:
+            clean_row: Dict[str, Any] = {}
+            for k, v in row.items():
+                if k is not None and v is not None:
+                    k_clean = k.strip().lower()
+                    clean_row[k_clean] = v.strip()
+
+            # Identify amount
+            amount_val = 0.0
+            for alias in amount_aliases:
+                if alias in clean_row:
+                    try:
+                        raw_str = re.sub(r'[^\d.-]', '', str(clean_row[alias]))
+                        amount_val = float(raw_str) if raw_str else 0.0
+                        break
+                    except ValueError:
+                        amount_val = 0.0
+
+            # Identify destination country
+            dest_val = "Domestic"
+            for alias in dest_aliases:
+                if alias in clean_row and clean_row[alias]:
+                    dest_val = clean_row[alias]
+                    break
+
+            # Identify TX ID
+            tx_id_val = f"TX-{len(txs)+1:03d}"
+            for alias in id_aliases:
+                if alias in clean_row and clean_row[alias]:
+                    tx_id_val = clean_row[alias]
+                    break
+
+            txs.append({
+                "tx_id": tx_id_val,
+                "amount": amount_val,
+                "destination_country": dest_val,
+                "source_country": clean_row.get("source_country", "USA"),
+                "tx_type": clean_row.get("tx_type", "WIRE_OUT")
+            })
+
+        return txs
         """
         Parses CSV text into a structured list of transactions.
         Intelligently auto-maps varying column names (e.g. txn_amt, value, destination, etc.)

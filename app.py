@@ -353,7 +353,7 @@ else:
     category_names.append("Custom Sandbox / Enter Your Own Data")
 
     st.subheader("Step 1: Select Risk Category & Scenario")
-    st.caption("Choose from 30 realistic banking compliance cases (10 per category) or enter custom data:")
+    st.caption("Choose from 30 realistic banking compliance cases or enter custom data:")
 
     sel_col1, sel_col2 = st.columns([1, 1])
 
@@ -366,7 +366,7 @@ else:
     if current_cat and current_cat["scenarios"]:
         scenario_titles = [s["title"] for s in current_cat["scenarios"]]
         with sel_col2:
-            chosen_scenario_title = st.selectbox("Scenario (10 Available):", options=scenario_titles, index=0)
+            chosen_scenario_title = st.selectbox("Scenario:", options=scenario_titles, index=0)
 
         selected_case = next(s for s in current_cat["scenarios"] if s["title"] == chosen_scenario_title)
 
@@ -462,6 +462,11 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
+        # Visual Risk Progress Bar (0 to 100)
+        score_ratio = min(1.0, max(0.0, profile.risk_score / 100.0))
+        st.progress(score_ratio, text=f"Composite Risk Exposure Index: {profile.risk_score} / 100")
+
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
         st.markdown("**AI Summary: Why Was This Flagged?**")
         st.caption("A plain-English explanation generated for the compliance officer detailing the primary risk drivers:")
         st.info(profile.ai_narrative_summary)
@@ -482,7 +487,44 @@ else:
         else:
             st.success("No anomalies or red flags detected in this account.")
 
-        with st.expander("View Normalized Ledger Table"):
+        # Natural Language Query Section (Rubric Optional Enhancement)
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+        st.markdown("**Interactive Natural Language Risk Interrogation:**")
+        st.caption("Interrogate transaction data in plain English (matches the optional enhancement in the brief):")
+
+        q_col1, q_col2, q_col3 = st.columns(3)
+        preset_q = None
+        with q_col1:
+            if st.button("Wires > $9,000", width="stretch"):
+                preset_q = "Show wires over 9000"
+        with q_col2:
+            if st.button("Offshore Jurisdictions", width="stretch"):
+                preset_q = "Which transactions went to offshore countries?"
+        with q_col3:
+            if st.button("Total Account Volume", width="stretch"):
+                preset_q = "What is the total transaction volume?"
+
+        if "user_nl_query" not in st.session_state:
+            st.session_state["user_nl_query"] = "Show wires over 9000"
+
+        if preset_q:
+            st.session_state["user_nl_query"] = preset_q
+
+        user_query = st.text_input(
+            "Ask a question about this account:",
+            value=st.session_state["user_nl_query"],
+            label_visibility="collapsed"
+        )
+
+        if user_query.strip():
+            query_res = FinancialRiskAggregator.query_transactions(parsed_txs, user_query)
+            st.info(f"**Query Result:** {query_res['answer']}")
+            if query_res["matched_txs"]:
+                st.dataframe(pd.DataFrame(query_res["matched_txs"]), width="stretch")
+            else:
+                st.caption("No matching transactions found for this query.")
+
+        with st.expander("View Full Raw Ledger Table"):
             if parsed_txs:
                 st.dataframe(pd.DataFrame(parsed_txs), width="stretch")
             else:

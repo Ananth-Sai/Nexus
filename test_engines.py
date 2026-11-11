@@ -130,3 +130,25 @@ TX-2,1200,UK,Germany
         assert len(parsed) == 2
         assert parsed[0]["amount"] == 9500.0
         assert parsed[1]["amount"] == 1200.0
+
+    def test_natural_language_query_interface(self):
+        transactions = [
+            {"tx_id": "TX-1", "amount": 9500.0, "destination_country": "Panama"},
+            {"tx_id": "TX-2", "amount": 1200.0, "destination_country": "Domestic"},
+            {"tx_id": "TX-3", "amount": 9800.0, "destination_country": "Cayman Islands"},
+        ]
+        
+        # Test threshold query
+        res1 = FinancialRiskAggregator.query_transactions(transactions, "Show wires over 9000")
+        assert res1["total_matched"] == 2
+        assert "exceeding $9,000.00" in res1["answer"]
+
+        # Test offshore query
+        res2 = FinancialRiskAggregator.query_transactions(transactions, "Which transactions went to offshore havens?")
+        assert res2["total_matched"] == 2
+        assert "Panama" in res2["answer"] or "Cayman" in res2["answer"]
+
+        # Test total volume query
+        res3 = FinancialRiskAggregator.query_transactions(transactions, "What is the total volume?")
+        assert res3["total_matched"] == 3
+        assert "$20,500.00" in res3["answer"]
