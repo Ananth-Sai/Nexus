@@ -214,8 +214,7 @@ if "Customer" in active_tab:
     g_total = len(scenario_groups[2]["scenarios"]) if len(scenario_groups) > 2 else 10
 
     with col1:
-        b_num = (st.session_state["billing_idx"] % b_total) + 1
-        if st.button(f"Billing Dispute ({b_num}/{b_total})", width="stretch"):
+        if st.button("Billing Dispute", width="stretch"):
             if scenario_groups:
                 b_list = scenario_groups[0]["scenarios"]
                 st.session_state["billing_idx"] = (st.session_state["billing_idx"] + 1) % len(b_list)
@@ -225,8 +224,7 @@ if "Customer" in active_tab:
                 st.rerun()
 
     with col2:
-        t_num = (st.session_state["tech_idx"] % t_total) + 1
-        if st.button(f"System Outage ({t_num}/{t_total})", width="stretch"):
+        if st.button("System Outage", width="stretch"):
             if len(scenario_groups) > 1:
                 t_list = scenario_groups[1]["scenarios"]
                 st.session_state["tech_idx"] = (st.session_state["tech_idx"] + 1) % len(t_list)
@@ -236,8 +234,7 @@ if "Customer" in active_tab:
                 st.rerun()
 
     with col3:
-        g_num = (st.session_state["gen_idx"] % g_total) + 1
-        if st.button(f"General Inquiry ({g_num}/{g_total})", width="stretch"):
+        if st.button("General Inquiry", width="stretch"):
             if len(scenario_groups) > 2:
                 g_list = scenario_groups[2]["scenarios"]
                 st.session_state["gen_idx"] = (st.session_state["gen_idx"] + 1) % len(g_list)
@@ -379,6 +376,22 @@ else:
         "TX-803,12000.00,USD,USA,USA,CARD_PAYMENT"
     )
 
+    structuring_csv = (
+        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
+        "TX-501,9900.00,USD,USA,USA,WIRE_OUT\n"
+        "TX-502,9850.00,USD,USA,USA,WIRE_OUT\n"
+        "TX-503,9750.00,USD,USA,USA,WIRE_OUT\n"
+        "TX-504,9920.00,USD,USA,USA,WIRE_OUT"
+    )
+
+    corporate_csv = (
+        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
+        "TX-301,42500.00,USD,USA,USA,PAYROLL_OUT\n"
+        "TX-302,15400.00,USD,USA,Germany,VENDOR_PAYMENT\n"
+        "TX-303,8900.00,USD,USA,UK,VENDOR_PAYMENT\n"
+        "TX-304,62000.00,USD,USA,USA,CLIENT_DEPOSIT"
+    )
+
     with c_col1:
         if st.button("Offshore Structuring & Sanctions (Critical)", width="stretch"):
             st.session_state["f_acc"] = "ACC-9041"
@@ -398,6 +411,15 @@ else:
             st.session_state["risk_evaluated"] = False
             st.rerun()
 
+        if st.button("Cash Smurfing Just Below $10K (High Risk)", width="stretch"):
+            st.session_state["f_acc"] = "ACC-5521"
+            st.session_state["f_name"] = "Metro Cash Distribution LLC"
+            st.session_state["f_pep"] = False
+            st.session_state["f_tenure"] = 5
+            st.session_state["f_csv"] = structuring_csv
+            st.session_state["risk_evaluated"] = False
+            st.rerun()
+
     with c_col2:
         if st.button("Clean Everyday Account (Low Risk)", width="stretch"):
             st.session_state["f_acc"] = "ACC-1001"
@@ -414,6 +436,15 @@ else:
             st.session_state["f_pep"] = False
             st.session_state["f_tenure"] = 1
             st.session_state["f_csv"] = velocity_csv
+            st.session_state["risk_evaluated"] = False
+            st.rerun()
+
+        if st.button("Established Corporate Vendor Operations (Low Risk)", width="stretch"):
+            st.session_state["f_acc"] = "ACC-3302"
+            st.session_state["f_name"] = "Midwest Manufacturing Corp"
+            st.session_state["f_pep"] = False
+            st.session_state["f_tenure"] = 48
+            st.session_state["f_csv"] = corporate_csv
             st.session_state["risk_evaluated"] = False
             st.rerun()
 
