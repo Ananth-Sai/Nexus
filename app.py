@@ -269,13 +269,13 @@ if "Operational" in active_tab:
 
         if sample_requests:
             with btn_c1:
-                if st.button("Billing Dispute", use_container_width=True):
+                if st.button("Billing Dispute", width="stretch"):
                     loaded_scenario = sample_requests[0]
             with btn_c2:
-                if st.button("Critical 500 Outage", use_container_width=True):
+                if st.button("Critical 500 Outage", width="stretch"):
                     loaded_scenario = sample_requests[1]
             with btn_c3:
-                if st.button("General Inquiry", use_container_width=True):
+                if st.button("General Inquiry", width="stretch"):
                     loaded_scenario = sample_requests[2]
 
         if loaded_scenario:
@@ -292,7 +292,7 @@ if "Operational" in active_tab:
                 value=st.session_state.get("v1_text", "URGENT: I was double-charged on invoice INV-88942 for our enterprise subscription. The charge of $4,950.00 was debited twice this morning. Please reverse immediately!"),
                 height=130
             )
-            dispatch_btn = st.form_submit_button("Trigger Autonomous Triage", type="primary", use_container_width=True)
+            dispatch_btn = st.form_submit_button("Trigger Autonomous Triage", type="primary", width="stretch")
 
         # Historical Audit Stream
         st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
@@ -304,7 +304,7 @@ if "Operational" in active_tab:
         records = get_audit_records(limit=8)
         if records:
             df = pd.DataFrame(records)[["timestamp", "request_id", "category", "urgency", "assigned_queue", "sla_hours"]]
-            st.dataframe(df, use_container_width=True, height=210)
+            st.dataframe(df, width="stretch", height=210)
         else:
             st.caption("No historical requests recorded in database yet.")
 
@@ -395,10 +395,10 @@ else:
     load_clean = False
 
     with pcol1:
-        if st.button("Load Case A: High-Risk Offshore Structuring & PEP (ACC-9041)", use_container_width=True):
+        if st.button("Load Case A: High-Risk Offshore Structuring & PEP (ACC-9041)", width="stretch"):
             load_high_risk = True
     with pcol2:
-        if st.button("Load Case B: Clean Retail Merchant Account (ACC-1001)", use_container_width=True):
+        if st.button("Load Case B: Clean Retail Merchant Account (ACC-1001)", width="stretch"):
             load_clean = True
 
     default_csv = (
@@ -445,12 +445,12 @@ else:
     with fin_left:
         st.markdown("**Structured Transaction Records (CSV Input):**")
         csv_payload = st.text_area("CSV Records:", value=default_csv, height=160, label_visibility="collapsed")
-        run_aml_btn = st.button("Synthesize Risk Signals & Score Entity", type="primary", use_container_width=True)
+        run_aml_btn = st.button("Synthesize Risk Signals & Score Entity", type="primary", width="stretch")
 
         parsed_txs = FinancialRiskAggregator.parse_csv_transactions(csv_payload)
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         st.markdown(f"**Normalized Ledger Entries ({len(parsed_txs)} Total):**")
-        st.dataframe(pd.DataFrame(parsed_txs), use_container_width=True, height=220)
+        st.dataframe(pd.DataFrame(parsed_txs), width="stretch", height=220)
 
     with fin_right:
         account_meta = {
@@ -525,6 +525,6 @@ else:
                     "Impact": f"+{s.score_contribution} pts",
                     "Evidence": s.description
                 })
-            st.dataframe(pd.DataFrame(sig_list), use_container_width=True, height=190)
+            st.dataframe(pd.DataFrame(sig_list), width="stretch", height=190)
         else:
             st.success("Zero adverse indicators or anomalous velocity patterns identified.")
