@@ -264,17 +264,60 @@ class FinancialRiskAggregator:
 
     @classmethod
     def parse_csv_transactions(cls, csv_text: str) -> List[Dict[str, Any]]:
-        """Parses CSV text into a structured list of transactions."""
+        """
+        Parses CSV text into a structured list of transactions.
+        Intelligently auto-maps varying column names (e.g. txn_amt, value, destination, etc.)
+        and sanitizes monetary strings ($9,500.00 -> 9500.0).
+        """
+        if not csv_text or not csv_text.strip():
+            return []
+
         reader = csv.DictReader(io.StringIO(csv_text.strip()))
         txs: List[Dict[str, Any]] = []
+
+        # Canonical aliases
+        amount_aliases = {"amount", "amt", "txn_amount", "txn_amt", "value", "total", "sum", "debit"}
+        dest_aliases = {"destination_country", "destination", "dest", "country", "receiver_country", "target_country", "beneficiary_country"}
+        id_aliases = {"tx_id", "id", "txn_id", "reference", "ref", "trans_id"}
+
         for row in reader:
-            clean_row = {k.strip(): v.strip() for k, v in row.items() if k and v is not None}
-            if "amount" in clean_row:
-                try:
-                    # Clean out currency symbols and commas
-                    raw_val = str(clean_row["amount"]).replace("$", "").replace(",", "").strip()
-                    clean_row["amount"] = float(raw_val)
-                except ValueError:
-                    clean_row["amount"] = 0.0
-            txs.append(clean_row)
+            clean_row: Dict[str, Any] = {}
+            for k, v in row.items():
+                if k is not None and v is not None:
+                    k_clean = k.strip().lower()
+                    clean_row[k_clean] = v.strip()
+
+            # Identify amount
+            amount_val = 0.0
+            for alias in amount_aliases:
+                if alias in clean_row:
+                    try:
+                        raw_str = re.sub(r'[^\d.-]', '', str(clean_row[alias]))
+                        amount_val = float(raw_str) if raw_str else 0.0
+                        break
+                    except ValueError:
+                        amount_val = 0.0
+
+            # Identify destination country
+            dest_val = "Domestic"
+            for alias in dest_aliases:
+                if alias in clean_row and clean_row[alias]:
+                    dest_val = clean_row[alias]
+                    break
+
+            # Identify TX ID
+            tx_id_val = f"TX-{len(txs)+1:03d}"
+            for alias in id_aliases:
+                if alias in clean_row and clean_row[alias]:
+                    tx_id_val = clean_row[alias]
+                    break
+
+            txs.append({
+                "tx_id": tx_id_val,
+                "amount": amount_val,
+                "destination_country": dest_val,
+                "source_country": clean_row.get("source_country", "USA"),
+                "tx_type": clean_row.get("tx_type", "WIRE_OUT")
+            })
+
         return txs

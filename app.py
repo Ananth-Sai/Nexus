@@ -169,6 +169,14 @@ def load_category_scenarios():
     return []
 
 
+def load_risk_cases():
+    path = os.path.join(os.path.dirname(__file__), "sample_risk_cases.json")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+
 # Top Header
 st.title("Nexus Operations & Risk Platform")
 st.caption("Select an assignment module below to test its autonomous decisioning in 3 simple steps.")
@@ -265,7 +273,7 @@ if "Customer" in active_tab:
     </div>
     """, unsafe_allow_html=True)
 
-    with st.expander("Optional: Manually Edit Message Text Before Processing"):
+    with st.expander("Custom Query"):
         custom_sender = st.text_input("Sender Email:", value=active_req.get("sender", ""))
         custom_text = st.text_area("Message Content:", value=active_req.get("text", ""), height=100)
         if st.button("Update Custom Text"):
@@ -340,153 +348,99 @@ if "Customer" in active_tab:
 # TAB 2: FINANCIAL RISK AGGREGATOR (ASSIGNMENT 1)
 # ==============================================================================
 else:
-    st.subheader("Step 1: Pick a Client Account Case")
-    st.caption("Select a scenario to evaluate its transaction patterns:")
+    risk_data = load_risk_cases()
+    category_names = [cat["category"] for cat in risk_data] if risk_data else []
+    category_names.append("Custom Sandbox / Enter Your Own Data")
 
-    c_col1, c_col2 = st.columns(2)
+    st.subheader("Step 1: Select Risk Category & Scenario")
+    st.caption("Choose from 30 realistic banking compliance cases (10 per category) or enter custom data:")
 
-    high_risk_csv = (
-        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
-        "TX-9901,9450.00,USD,USA,Cayman Islands,WIRE_OUT\n"
-        "TX-9902,9800.00,USD,USA,Panama,WIRE_OUT\n"
-        "TX-9903,9200.00,USD,USA,Cayman Islands,WIRE_OUT\n"
-        "TX-9904,9650.00,USD,USA,Panama,WIRE_OUT\n"
-        "TX-9905,125000.00,USD,USA,Switzerland,WIRE_OUT"
-    )
+    sel_col1, sel_col2 = st.columns([1, 1])
 
-    clean_csv = (
-        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
-        "TX-1001,120.50,USD,USA,USA,ACH_PAYMENT\n"
-        "TX-1002,84.20,USD,USA,USA,CARD_PURCHASE\n"
-        "TX-1003,1450.00,USD,USA,USA,PAYROLL_DEPOSIT\n"
-        "TX-1004,65.00,USD,USA,USA,CARD_PURCHASE"
-    )
+    with sel_col1:
+        chosen_cat_name = st.selectbox("Risk Category:", options=category_names, index=0)
 
-    pep_csv = (
-        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
-        "TX-701,48000.00,USD,USA,Cyprus,WIRE_OUT\n"
-        "TX-702,65000.00,USD,USA,Seychelles,WIRE_OUT\n"
-        "TX-703,9800.00,USD,USA,Panama,WIRE_OUT"
-    )
+    # Find scenarios for category
+    current_cat = next((c for c in risk_data if c["category"] == chosen_cat_name), None) if risk_data else None
 
-    velocity_csv = (
-        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
-        "TX-801,25000.00,USD,USA,USA,WIRE_IN\n"
-        "TX-802,32000.00,USD,USA,USA,WIRE_OUT\n"
-        "TX-803,12000.00,USD,USA,USA,CARD_PAYMENT"
-    )
+    if current_cat and current_cat["scenarios"]:
+        scenario_titles = [s["title"] for s in current_cat["scenarios"]]
+        with sel_col2:
+            chosen_scenario_title = st.selectbox("Scenario (10 Available):", options=scenario_titles, index=0)
 
-    structuring_csv = (
-        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
-        "TX-501,9900.00,USD,USA,USA,WIRE_OUT\n"
-        "TX-502,9850.00,USD,USA,USA,WIRE_OUT\n"
-        "TX-503,9750.00,USD,USA,USA,WIRE_OUT\n"
-        "TX-504,9920.00,USD,USA,USA,WIRE_OUT"
-    )
+        selected_case = next(s for s in current_cat["scenarios"] if s["title"] == chosen_scenario_title)
 
-    corporate_csv = (
-        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
-        "TX-301,42500.00,USD,USA,USA,PAYROLL_OUT\n"
-        "TX-302,15400.00,USD,USA,Germany,VENDOR_PAYMENT\n"
-        "TX-303,8900.00,USD,USA,UK,VENDOR_PAYMENT\n"
-        "TX-304,62000.00,USD,USA,USA,CLIENT_DEPOSIT"
-    )
+        default_acc_id = selected_case.get("account_id", "ACC-1001")
+        default_name = selected_case.get("title", "").split("(")[0].strip()
+        default_pep = selected_case.get("pep_status", False)
+        default_tenure = selected_case.get("tenure_months", 12)
+        default_csv = selected_case.get("csv", "")
+        default_clue = selected_case.get("clue", "Evaluate multi-source transaction signals.")
+    else:
+        # Custom Sandbox mode
+        with sel_col2:
+            st.caption("Custom Mode Active")
+        selected_case = None
+        default_acc_id = "ACC-CUSTOM-1"
+        default_name = "Apex Horizon Capital LLC"
+        default_pep = True
+        default_tenure = 2
+        default_clue = "Custom user scenario. Test and manipulate parameters below."
+        default_csv = (
+            "tx_id,amount,source_country,destination_country,tx_type\n"
+            "TX-01,9500.00,USA,Panama,WIRE_OUT\n"
+            "TX-02,9800.00,USA,Panama,WIRE_OUT\n"
+            "TX-03,9600.00,USA,Cayman Islands,WIRE_OUT"
+        )
 
-    with c_col1:
-        if st.button("Offshore Structuring & Sanctions (Critical)", width="stretch"):
-            st.session_state["f_acc"] = "ACC-9041"
-            st.session_state["f_name"] = "Vanguard Maritime Trade Ltd"
-            st.session_state["f_pep"] = True
-            st.session_state["f_tenure"] = 1
-            st.session_state["f_csv"] = high_risk_csv
-            st.session_state["risk_evaluated"] = False
-            st.rerun()
-
-        if st.button("PEP Foreign Official Entity (High Risk)", width="stretch"):
-            st.session_state["f_acc"] = "ACC-4109"
-            st.session_state["f_name"] = "Eurasia Capital Partners LLC"
-            st.session_state["f_pep"] = True
-            st.session_state["f_tenure"] = 8
-            st.session_state["f_csv"] = pep_csv
-            st.session_state["risk_evaluated"] = False
-            st.rerun()
-
-        if st.button("Cash Smurfing Just Below $10K (High Risk)", width="stretch"):
-            st.session_state["f_acc"] = "ACC-5521"
-            st.session_state["f_name"] = "Metro Cash Distribution LLC"
-            st.session_state["f_pep"] = False
-            st.session_state["f_tenure"] = 5
-            st.session_state["f_csv"] = structuring_csv
-            st.session_state["risk_evaluated"] = False
-            st.rerun()
-
-    with c_col2:
-        if st.button("Clean Everyday Account (Low Risk)", width="stretch"):
-            st.session_state["f_acc"] = "ACC-1001"
-            st.session_state["f_name"] = "Johnathan Mercer"
-            st.session_state["f_pep"] = False
-            st.session_state["f_tenure"] = 36
-            st.session_state["f_csv"] = clean_csv
-            st.session_state["risk_evaluated"] = False
-            st.rerun()
-
-        if st.button("New Account Velocity Spike (Medium Risk)", width="stretch"):
-            st.session_state["f_acc"] = "ACC-8812"
-            st.session_state["f_name"] = "Rapid Logistics Express"
-            st.session_state["f_pep"] = False
-            st.session_state["f_tenure"] = 1
-            st.session_state["f_csv"] = velocity_csv
-            st.session_state["risk_evaluated"] = False
-            st.rerun()
-
-        if st.button("Established Corporate Vendor Operations (Low Risk)", width="stretch"):
-            st.session_state["f_acc"] = "ACC-3302"
-            st.session_state["f_name"] = "Midwest Manufacturing Corp"
-            st.session_state["f_pep"] = False
-            st.session_state["f_tenure"] = 48
-            st.session_state["f_csv"] = corporate_csv
-            st.session_state["risk_evaluated"] = False
-            st.rerun()
-
-    acc_id = st.session_state.get("f_acc", "ACC-9041")
-    acc_name = st.session_state.get("f_name", "Vanguard Maritime Trade Ltd")
-    is_pep = st.session_state.get("f_pep", True)
-    tenure = st.session_state.get("f_tenure", 1)
-    csv_text = st.session_state.get("f_csv", high_risk_csv)
-
+    # KYC Profile Snapshot Card with "What to look for" clue
     st.markdown(f"""
     <div class="msg-preview">
-        <div class="msg-header">Selected Client Profile</div>
-        <strong>Account Name:</strong> {acc_name} (<code>{acc_id}</code>)<br>
-        <strong>Account Age:</strong> {tenure} month(s)<br>
-        <strong>Politically Exposed Person (PEP):</strong> {'Yes (High-Risk Category)' if is_pep else 'No (Standard Retail)'}
+        <div class="msg-header">Client KYC Snapshot & Threat Clue</div>
+        <strong>Entity:</strong> {default_name} (<code>{default_acc_id}</code>)<br>
+        <strong>What to look for:</strong> <em>{default_clue}</em>
     </div>
     """, unsafe_allow_html=True)
 
-    with st.expander("Review Raw Bank Ledger Data (CSV)"):
-        st.text_area("Transaction Records:", value=csv_text, height=120, disabled=True)
+    # Interactive What-If Parameter Controls
+    with st.expander("Interactive What-If Controls (Manipulate Profile & CSV Data)", expanded=True):
+        p_col1, p_col2 = st.columns(2)
+        with p_col1:
+            pep_toggle = st.toggle("Politically Exposed Person (PEP Exposure)", value=default_pep)
+            acc_id_input = st.text_input("Account Identifier:", value=default_acc_id)
+        with p_col2:
+            tenure_slider = st.slider("Account Age (Months):", min_value=1, max_value=60, value=min(60, max(1, default_tenure)))
+            name_input = st.text_input("Legal Entity Name:", value=default_name)
+
+        csv_editor_text = st.text_area(
+            "Transaction Ledger (Smart Auto-Mapping detects any column names e.g. amount, value, dest, etc.):",
+            value=default_csv,
+            height=120
+        )
 
     # Step 2: Action Button
     st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-    st.subheader("Step 2: Run Risk Detection")
-    
+    st.subheader("Step 2: Run Risk Detection Engine")
+
     if st.button("Evaluate Account Risk", type="primary", width="stretch"):
         with st.spinner("Screening sanctions watchlists, detecting structuring anomalies, and computing composite score..."):
-            parsed_txs = FinancialRiskAggregator.parse_csv_transactions(csv_text)
+            parsed_txs = FinancialRiskAggregator.parse_csv_transactions(csv_editor_text)
             meta = {
-                "account_id": acc_id,
-                "customer_name": acc_name,
+                "account_id": acc_id_input,
+                "customer_name": name_input,
                 "jurisdiction": "Offshore",
-                "pep_status": is_pep,
-                "account_tenure_months": tenure
+                "pep_status": pep_toggle,
+                "account_tenure_months": tenure_slider
             }
             profile = FinancialRiskAggregator.analyze_dataset(parsed_txs, meta)
             st.session_state["risk_profile"] = profile
             st.session_state["risk_evaluated"] = True
+            st.session_state["evaluated_txs"] = parsed_txs
 
     # Step 3: Results display
     if st.session_state.get("risk_evaluated", False) and "risk_profile" in st.session_state:
         profile = st.session_state["risk_profile"]
+        parsed_txs = st.session_state.get("evaluated_txs", [])
 
         st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
         st.subheader("Step 3: Risk Assessment Results")
@@ -508,7 +462,6 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-        # Simplified Explanation of the AI Summary
         st.markdown("**AI Summary: Why Was This Flagged?**")
         st.caption("A plain-English explanation generated for the compliance officer detailing the primary risk drivers:")
         st.info(profile.ai_narrative_summary)
@@ -529,7 +482,10 @@ else:
         else:
             st.success("No anomalies or red flags detected in this account.")
 
-        with st.expander("View Ingested Transactions Table"):
-            st.dataframe(pd.DataFrame(FinancialRiskAggregator.parse_csv_transactions(csv_text)), width="stretch")
+        with st.expander("View Normalized Ledger Table"):
+            if parsed_txs:
+                st.dataframe(pd.DataFrame(parsed_txs), width="stretch")
+            else:
+                st.caption("No transaction records parsed.")
     else:
         st.info("Click the **'Evaluate Account Risk'** button above to run the fraud and AML detection engine on this account.")
