@@ -418,6 +418,17 @@ python -m pytest -v test_engines.py
 
 ---
 
+### Q19: "Should the presentation deck be submitted as 2 separate 5-slide files or 1 combined 10-slide deck?"
+**Answer:**
+> "Both take-home briefs contain an identical mandatory submission clause:
+> *'Five-Slide Summary Deck (Fixed Structure) — Format: PowerPoint or PDF (five slides maximum).'*
+>
+> Therefore, submitting **two separate files of exactly 5 slides each** (`Nexus_Workflow_Triage_Deck` and `Nexus_Financial_Risk_Deck`) is 100% compliant with the brief limits, especially if evaluated independently by an Operations lead and an AML compliance lead.
+>
+> However, for live screen-sharing presentations where both modules are showcased together, merging them into a single **10-slide executive deck** (Slides 1–5 for Triage, Slides 6–10 for Risk) provides a cohesive, seamless narrative."
+
+---
+
 ## 6. LIVE FEATURE EXTENSION PLAYBOOK (4 Step-by-Step Copy-Paste Recipes)
 
 If an interviewer asks you to extend the system live on screen during the call, use these proven, copy-paste recipes:

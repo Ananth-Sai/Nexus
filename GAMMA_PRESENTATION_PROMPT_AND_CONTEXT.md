@@ -4,6 +4,19 @@
 
 ---
 
+> [!IMPORTANT]
+> ### 📋 SUBMISSION RULE: WHY YOU NEED 2 SEPARATE 5-SLIDE DECKS (OR 1 COMBINED 10-SLIDE DECK)
+> - **The Exact Brief Requirement:** Both `Financial_Risk_Signal_Aggregator.docx` and `Incoming_Request_Processing_Workflow.docx` have an identical mandatory clause:
+>   > *"Five-Slide Summary Deck (Fixed Structure) — Format: PowerPoint or PDF (five slides maximum)."*
+> - **How to Deliver:**
+>   - **Approach 1 (Recommended — 100% Rubric Compliant):** **Two separate 5-slide presentations:**
+>     - **Deck A:** 5 slides covering *Customer Request Processing & Multi-Branch Remediation*
+>     - **Deck B:** 5 slides covering *Financial Risk Signal Aggregator & AML Fraud Synthesis*
+>     *(This strictly obeys the 5-slide maximum limit if each assignment is reviewed independently).*
+>   - **Approach 2 (Unified Presentation for Live Screen-Share):** If an interviewer asks you to walk through the entire unified suite in one deck, combine both into **one 10-slide master deck** (Slides 1–5: Workflow Triage, Slides 6–10: Financial Risk).
+
+---
+
 ## PART 1: THE MASTER PROMPT FOR GAMMA (Copy & Paste Into Prompt Box)
 
 When you open Gamma and click **"Create new"** $\rightarrow$ **"Generate"**, paste this exact prompt into Gamma's instruction prompt box:
@@ -32,6 +45,7 @@ MANDATORY VISUAL & INFOGRAPHIC DIRECTIVES:
 ---
 
 ### DECK A: INCOMING REQUEST PROCESSING WORKFLOW
+
 *(Assignment 2 — Operations Triage & Multi-Branch Remediation)*
 
 ```markdown
@@ -133,6 +147,7 @@ MANDATORY VISUAL & INFOGRAPHIC DIRECTIVES:
 ---
 
 ### DECK B: FINANCIAL RISK SIGNAL AGGREGATOR
+
 *(Assignment 1 — AML Risk Synthesis & Natural Language Interrogation)*
 
 ```markdown
