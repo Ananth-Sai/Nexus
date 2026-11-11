@@ -163,8 +163,6 @@ A1/
 ├── sample_financial_data.csv  # Mock transaction records
 ├── sample_external_alerts.json# Mock external watchlist hits
 ├── requirements.txt           # Project dependencies
-├── SLIDES_WORKFLOW.md         # 5-Slide presentation deck for Assignment 1
-├── SLIDES_RISK.md             # 5-Slide presentation deck for Assignment 2
 └── README.md                  # Comprehensive documentation
 ```
 
