@@ -259,7 +259,7 @@ if "Customer" in active_tab:
     # Preview card
     st.markdown(f"""
     <div class="msg-preview">
-        <div class="msg-header">Selected Scenario: {active_req.get('title', 'Customer Inquiry')}</div>
+        <div class="msg-header">{active_req.get('title', 'Customer Inquiry')}</div>
         <strong>From:</strong> {active_req.get('sender', 'user@corp.com')}<br><br>
         {active_req.get('text', '')}
     </div>
