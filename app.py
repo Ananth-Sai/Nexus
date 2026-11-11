@@ -409,7 +409,7 @@ else:
 
         default_acc_id = selected_case.get("account_id", "ACC-1001")
         default_name = selected_case.get("title", "").split("(")[0].strip()
-        default_pep = selected_case.get("pep_status", False)
+        default_pep = False
         default_tenure = selected_case.get("tenure_months", 12)
         default_csv = selected_case.get("csv", "")
         default_clue = selected_case.get("clue", "Evaluate multi-source transaction signals.")
@@ -420,7 +420,7 @@ else:
         selected_case = None
         default_acc_id = "ACC-CUSTOM-1"
         default_name = "Apex Horizon Capital LLC"
-        default_pep = True
+        default_pep = False
         default_tenure = 2
         default_clue = "Custom user scenario. Test and manipulate parameters below."
         default_csv = (
