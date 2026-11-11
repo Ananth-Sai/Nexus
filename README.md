@@ -14,8 +14,8 @@ An integrated, enterprise-grade AI prototype addressing two core organizational 
 
 ### Installation
 ```bash
-git clone <your-repo-link>
-cd A1
+git clone https://github.com/Ananth-Sai/Nexus.git
+cd Nexus
 python -m pip install -r requirements.txt
 ```
 
@@ -140,7 +140,7 @@ Empowers AML compliance analysts to synthesize fragmented signals across transac
 
 ## 5. Repository Structure
 ```
-A1/
+Nexus/
 ├── app.py                     # Multi-page Streamlit application
 ├── workflow_engine.py         # Request triage, branching & audit engine
 ├── risk_engine.py             # AML data aggregation, anomaly scoring & narrative engine
