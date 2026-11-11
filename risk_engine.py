@@ -266,10 +266,20 @@ class FinancialRiskAggregator:
     def query_transactions(cls, transactions: List[Dict[str, Any]], query_text: str) -> Dict[str, Any]:
         """
         Interrogates transaction records using natural language queries.
-        Filters matching rows and returns a plain-English explanation.
+        Filters matching rows and returns a plain-English explanation,
+        summary metrics, and percentage of total account volume.
         """
+        account_total = sum(float(t.get("amount", 0.0)) for t in transactions) if transactions else 0.0
+
         if not transactions or not query_text.strip():
-            return {"answer": "No query provided.", "matched_txs": transactions, "total_matched": len(transactions)}
+            return {
+                "answer": "No query provided. Displaying all ledger records.",
+                "matched_txs": transactions,
+                "total_matched": len(transactions),
+                "total_matched_volume": account_total,
+                "account_total_volume": account_total,
+                "volume_percentage": 100.0 if transactions else 0.0
+            }
 
         q_lower = query_text.lower().strip()
         matched: List[Dict[str, Any]] = []
@@ -280,47 +290,94 @@ class FinancialRiskAggregator:
             thresh = float(amount_match.group(1).replace(",", ""))
             matched = [t for t in transactions if float(t.get("amount", 0.0)) > thresh]
             tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
-            answer = f"Found {len(matched)} transaction(s) with an amount exceeding ${thresh:,.2f}, totaling ${tot_val:,.2f}."
-            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+            pct = round((tot_val / account_total * 100), 1) if account_total > 0 else 0.0
+            answer = f"Found {len(matched)} transaction(s) with an amount exceeding ${thresh:,.2f}, totaling ${tot_val:,.2f} ({pct}% of account volume)."
+            return {
+                "answer": answer,
+                "matched_txs": matched,
+                "total_matched": len(matched),
+                "total_matched_volume": tot_val,
+                "account_total_volume": account_total,
+                "volume_percentage": pct
+            }
 
         # 2. Check for offshore / haven queries
-        if any(w in q_lower for w in ["offshore", "haven", "cayman", "panama", "seychelles", "cyprus", "vanuatu"]):
+        if any(w in q_lower for w in ["offshore", "haven", "cayman", "panama", "seychelles", "cyprus", "vanuatu", "bahamas", "monaco"]):
             matched = [
                 t for t in transactions
                 if t.get("destination_country") in HIGH_RISK_JURISDICTIONS or t.get("source_country") in HIGH_RISK_JURISDICTIONS
             ]
             tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
-            dest_list = list({t.get("destination_country") for t in matched if t.get("destination_country")})
-            answer = f"Found {len(matched)} transaction(s) linked to high-risk offshore jurisdictions ({', '.join(dest_list)}), totaling ${tot_val:,.2f}."
-            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+            pct = round((tot_val / account_total * 100), 1) if account_total > 0 else 0.0
+            dest_list = sorted(list({t.get("destination_country") for t in matched if t.get("destination_country")}))
+            dests_str = ", ".join(dest_list) if dest_list else "High-Risk Corridors"
+            answer = f"Found {len(matched)} transaction(s) linked to high-risk offshore jurisdictions ({dests_str}), totaling ${tot_val:,.2f} ({pct}% of volume)."
+            return {
+                "answer": answer,
+                "matched_txs": matched,
+                "total_matched": len(matched),
+                "total_matched_volume": tot_val,
+                "account_total_volume": account_total,
+                "volume_percentage": pct
+            }
 
-        # 3. Check for structuring / smurfing queries (near $10k)
-        if any(w in q_lower for w in ["structuring", "smurfing", "under 10k", "below 10,000", "10000"]):
-            matched = [t for t in transactions if 8500.0 <= float(t.get("amount", 0.0)) < 10000.0]
+        # 3. Check for structuring / smurfing / cash queries (near $10k or cash deposits)
+        if any(w in q_lower for w in ["structuring", "smurfing", "under 10k", "below 10,000", "10000", "cash"]):
+            matched = [
+                t for t in transactions
+                if (8500.0 <= float(t.get("amount", 0.0)) < 10000.0) or ("cash" in str(t.get("tx_type", "")).lower())
+            ]
             tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
-            answer = f"Found {len(matched)} transaction(s) structured just beneath the $10,000 reporting threshold, totaling ${tot_val:,.2f}."
-            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+            pct = round((tot_val / account_total * 100), 1) if account_total > 0 else 0.0
+            answer = f"Found {len(matched)} transaction(s) structured just beneath reporting thresholds or cash deposits, totaling ${tot_val:,.2f} ({pct}% of volume)."
+            return {
+                "answer": answer,
+                "matched_txs": matched,
+                "total_matched": len(matched),
+                "total_matched_volume": tot_val,
+                "account_total_volume": account_total,
+                "volume_percentage": pct
+            }
 
         # 4. Check for total volume / sum queries
         if any(w in q_lower for w in ["total", "volume", "sum", "how much"]):
-            tot_val = sum(float(t.get("amount", 0.0)) for t in transactions)
+            tot_val = account_total
             answer = f"The account has a total transaction volume of ${tot_val:,.2f} across all {len(transactions)} record(s)."
-            return {"answer": answer, "matched_txs": transactions, "total_matched": len(transactions)}
+            return {
+                "answer": answer,
+                "matched_txs": transactions,
+                "total_matched": len(transactions),
+                "total_matched_volume": tot_val,
+                "account_total_volume": account_total,
+                "volume_percentage": 100.0
+            }
 
         # 5. Fallback keyword filter
-        keywords = [w for w in q_lower.split() if len(w) > 3 and w not in ["show", "find", "what", "which", "with", "where"]]
+        keywords = [w for w in q_lower.split() if len(w) > 2 and w not in ["show", "find", "what", "which", "with", "where", "the", "for"]]
         if keywords:
             matched = [
                 t for t in transactions
                 if any(kw in str(val).lower() for kw in keywords for val in t.values())
             ]
-            answer = f"Found {len(matched)} transaction(s) matching keyword(s) '{', '.join(keywords)}'."
-            return {"answer": answer, "matched_txs": matched, "total_matched": len(matched)}
+            tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
+            pct = round((tot_val / account_total * 100), 1) if account_total > 0 else 0.0
+            answer = f"Found {len(matched)} transaction(s) matching keyword(s) '{', '.join(keywords)}', totaling ${tot_val:,.2f} ({pct}% of volume)."
+            return {
+                "answer": answer,
+                "matched_txs": matched,
+                "total_matched": len(matched),
+                "total_matched_volume": tot_val,
+                "account_total_volume": account_total,
+                "volume_percentage": pct
+            }
 
         return {
             "answer": f"Displaying all {len(transactions)} transaction record(s).",
             "matched_txs": transactions,
-            "total_matched": len(transactions)
+            "total_matched": len(transactions),
+            "total_matched_volume": account_total,
+            "account_total_volume": account_total,
+            "volume_percentage": 100.0
         }
 
     @classmethod

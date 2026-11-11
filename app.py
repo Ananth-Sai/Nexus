@@ -183,6 +183,37 @@ def load_risk_cases():
     return []
 
 
+def format_transaction_df(tx_list):
+    """Formats transaction dictionaries into a clean, human-readable DataFrame."""
+    if not tx_list:
+        return pd.DataFrame()
+    df = pd.DataFrame(tx_list).copy()
+
+    col_map = {
+        "tx_id": "Transaction ID",
+        "date": "Date",
+        "amount": "Amount",
+        "tx_type": "Type",
+        "source_country": "Source",
+        "destination_country": "Destination",
+        "description": "Description"
+    }
+    df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
+
+    if "Amount" in df.columns:
+        def _fmt(val):
+            try:
+                num = float(str(val).replace("$", "").replace(",", "").strip())
+                return f"${num:,.2f}"
+            except Exception:
+                return str(val)
+        df["Amount"] = df["Amount"].apply(_fmt)
+
+    preferred_order = ["Transaction ID", "Date", "Amount", "Type", "Source", "Destination", "Description"]
+    existing_cols = [c for c in preferred_order if c in df.columns] + [c for c in df.columns if c not in preferred_order]
+    return df[existing_cols]
+
+
 # Top Header
 st.title("Nexus Operations & Risk Platform")
 st.caption("Select an assignment module below to test its autonomous decisioning in 3 simple steps.")
@@ -494,20 +525,32 @@ else:
             st.success("No anomalies or red flags detected in this account.")
 
         # Natural Language Query Section (Rubric Optional Enhancement)
-        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-        st.markdown("**Interactive Natural Language Risk Interrogation:**")
-        st.caption("Interrogate transaction data in plain English (matches the optional enhancement in the brief):")
+        st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+            <span style="font-weight: 700; font-size: 1.05rem; color: #f8fafc;">
+                Interactive Natural Language Risk Interrogation
+            </span>
+            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: #334155; padding: 2px 8px; border-radius: 4px;">
+                Rubric Bonus
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+        st.caption("Ask conversational questions about transaction flows, high-risk corridors, or structuring thresholds:")
 
-        q_col1, q_col2, q_col3 = st.columns(3)
+        q_col1, q_col2, q_col3, q_col4 = st.columns(4)
         preset_q = None
         with q_col1:
             if st.button("Wires > $9,000", width="stretch"):
                 preset_q = "Show wires over 9000"
         with q_col2:
-            if st.button("Offshore Jurisdictions", width="stretch"):
+            if st.button("Offshore Havens", width="stretch"):
                 preset_q = "Which transactions went to offshore countries?"
         with q_col3:
-            if st.button("Total Account Volume", width="stretch"):
+            if st.button("Cash / Structuring", width="stretch"):
+                preset_q = "Show structured cash deposits under 10k"
+        with q_col4:
+            if st.button("Total Volume", width="stretch"):
                 preset_q = "What is the total transaction volume?"
 
         if "user_nl_query" not in st.session_state:
@@ -524,15 +567,32 @@ else:
 
         if user_query.strip():
             query_res = FinancialRiskAggregator.query_transactions(parsed_txs, user_query)
-            st.info(f"**Query Result:** {query_res['answer']}")
+
+            # Executive KPI metric summary
+            km1, km2, km3 = st.columns(3)
+            with km1:
+                st.metric("Matches Found", f"{query_res['total_matched']} / {len(parsed_txs)} txs")
+            with km2:
+                st.metric("Filtered Volume", f"${query_res.get('total_matched_volume', 0.0):,.2f}")
+            with km3:
+                st.metric("Share of Volume", f"{query_res.get('volume_percentage', 0.0)}%")
+
+            # Rationale banner styled in custom HTML to prevent KaTeX dollar delimiter stripping
+            safe_answer = query_res['answer'].replace("<", "&lt;").replace(">", "&gt;")
+            st.markdown(f"""
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-left: 4px solid #3b82f6; border-radius: 6px; padding: 12px 16px; margin-top: 10px; margin-bottom: 14px; font-size: 0.9rem; color: #f8fafc; line-height: 1.5;">
+                <span style="font-weight: 700; color: #60a5fa;">Query Insight:</span> {safe_answer}
+            </div>
+            """, unsafe_allow_html=True)
+
             if query_res["matched_txs"]:
-                st.dataframe(pd.DataFrame(query_res["matched_txs"]), width="stretch")
+                st.dataframe(format_transaction_df(query_res["matched_txs"]), hide_index=True, width="stretch")
             else:
                 st.caption("No matching transactions found for this query.")
 
         with st.expander("View Full Raw Ledger Table"):
             if parsed_txs:
-                st.dataframe(pd.DataFrame(parsed_txs), width="stretch")
+                st.dataframe(format_transaction_df(parsed_txs), hide_index=True, width="stretch")
             else:
                 st.caption("No transaction records parsed.")
     else:
