@@ -1,200 +1,142 @@
 """
-Nexus AI: Operations & Compliance Mission Control
-Bespoke interface for:
-1. Autonomous Request Triage & Multi-Branch Remediation
-2. Financial AML Risk Signal Aggregator & Compliance Terminal
+Nexus AI: Operations & Risk Suite
+Clean, Guided 3-Step Interface:
+1. Operational Request Triage (Assignment 2)
+2. Financial AML Risk Aggregator (Assignment 1)
 """
 
 import json
 import os
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 
 from workflow_engine import (
     WorkflowRemediationEngine,
-    get_audit_records,
-    init_audit_db
+    get_audit_records
 )
 from risk_engine import (
-    FinancialRiskAggregator,
-    HIGH_RISK_JURISDICTIONS
+    FinancialRiskAggregator
 )
 
-# Page Configuration - Single explicit call at the very top
+# Page Setup
 st.set_page_config(
-    page_title="Nexus Operations & Compliance Mission Control",
-    layout="wide",
+    page_title="Nexus AI | Operations & Risk Platform",
+    page_icon="⚡",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Clean, structured CSS stylesheet
+# Minimal, clean, calm styling (Anti-vibe-coded: disciplined colors, no sensory overload, clear hierarchy)
 CUSTOM_CSS = """
 <style>
+    /* Max width centered container to prevent eye strain / clutter */
     .block-container {
-        padding-top: 1.5rem;
-        padding-bottom: 2.5rem;
-        max-width: 1380px;
+        max-width: 860px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
     }
-    .console-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 14px 20px;
-        background: #0f172a;
-        color: #f8fafc;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-    }
-    .console-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-    }
-    .console-sub {
-        font-size: 0.8rem;
-        color: #94a3b8;
-        margin-top: 2px;
-    }
-    .status-pill {
-        background: #1e293b;
-        color: #38bdf8;
-        border: 1px solid #334155;
-        padding: 6px 14px;
-        border-radius: 9999px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-    }
-    .panel-card {
+
+    /* Clean Card Container */
+    .nexus-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 18px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        border-radius: 10px;
+        padding: 22px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 6px;
+    }
+    .card-sub {
+        font-size: 0.85rem;
+        color: #64748b;
         margin-bottom: 16px;
     }
-    .panel-title {
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: #0f172a;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        border-bottom: 1px solid #f1f5f9;
-        padding-bottom: 8px;
-        margin-bottom: 14px;
-    }
-    .kpi-tile {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+
+    /* Result Banner */
+    .result-banner-critical {
+        background-color: #fef2f2;
+        border-left: 5px solid #dc2626;
+        padding: 16px 20px;
         border-radius: 6px;
-        padding: 12px 14px;
-        text-align: center;
+        margin-bottom: 18px;
     }
-    .kpi-label {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+    .result-banner-high {
+        background-color: #fffbeb;
+        border-left: 5px solid #d97706;
+        padding: 16px 20px;
+        border-radius: 6px;
+        margin-bottom: 18px;
     }
-    .kpi-val {
-        font-size: 1.35rem;
+    .result-banner-normal {
+        background-color: #f0fdf4;
+        border-left: 5px solid #16a34a;
+        padding: 16px 20px;
+        border-radius: 6px;
+        margin-bottom: 18px;
+    }
+    .banner-heading {
+        font-size: 1.15rem;
         font-weight: 700;
         color: #0f172a;
-        margin-top: 2px;
     }
-    .timeline-step {
+    .banner-detail {
+        font-size: 0.9rem;
+        color: #334155;
+        margin-top: 4px;
+    }
+
+    /* Clean Step Checklist */
+    .step-item {
         display: flex;
-        margin-bottom: 12px;
-        position: relative;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
     }
-    .timeline-num {
-        flex-shrink: 0;
-        width: 30px;
-        height: 30px;
+    .step-item:last-child {
+        border-bottom: none;
+    }
+    .step-badge {
         background: #0f172a;
         color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-right: 12px;
+        margin-right: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
     }
-    .timeline-content {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 10px 14px;
-        width: 100%;
-    }
-    .timeline-step-title {
+    .step-name {
+        font-size: 0.92rem;
         font-weight: 600;
-        font-size: 0.88rem;
         color: #1e293b;
     }
-    .timeline-step-desc {
-        font-size: 0.82rem;
+    .step-desc {
+        font-size: 0.84rem;
         color: #475569;
-        margin-top: 3px;
-        line-height: 1.35;
+        margin-top: 2px;
     }
-    .chip-critical {
-        background: #fee2e2;
-        color: #991b1b;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 3px 8px;
-        border-radius: 4px;
-        border: 1px solid #fecaca;
-    }
-    .chip-high {
-        background: #fef3c7;
-        color: #92400e;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 3px 8px;
-        border-radius: 4px;
-        border: 1px solid #fde68a;
-    }
-    .chip-normal {
-        background: #e0f2fe;
-        color: #075985;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 3px 8px;
-        border-radius: 4px;
-        border: 1px solid #bae6fd;
-    }
-    .chip-safe {
-        background: #dcfce7;
-        color: #166534;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 3px 8px;
-        border-radius: 4px;
-        border: 1px solid #bbf7d0;
-    }
-    .banner-danger {
-        background: #fef2f2;
-        border-left: 5px solid #dc2626;
-        padding: 12px 16px;
-        border-radius: 4px;
-        color: #991b1b;
+
+    /* Email Preview Box */
+    .email-box {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 16px 20px;
+        font-family: inherit;
         font-size: 0.88rem;
-        margin-bottom: 14px;
-    }
-    .banner-success {
-        background: #f0fdf4;
-        border-left: 5px solid #16a34a;
-        padding: 12px 16px;
-        border-radius: 4px;
-        color: #166534;
-        font-size: 0.88rem;
-        margin-bottom: 14px;
+        color: #1e293b;
+        white-space: pre-wrap;
+        line-height: 1.5;
     }
 </style>
 """
@@ -209,168 +151,137 @@ def load_sample_requests():
     return []
 
 
-# Top Command Bar Header
-api_indicator = "Hybrid (GenAI Live)" if os.environ.get("GEMINI_API_KEY") else "Deterministic Rule Engine (Active)"
-header_html = (
-    '<div class="console-header">'
-    '  <div>'
-    '    <div class="console-title">Nexus Operations & Compliance Mission Control</div>'
-    '    <div class="console-sub">Multi-Branch Workflow Orchestration & Financial AML Signal Aggregation</div>'
-    '  </div>'
-    f'  <div class="status-pill">{api_indicator}</div>'
-    '</div>'
-)
-st.markdown(header_html, unsafe_allow_html=True)
+# Top Title
+st.title("Nexus Operations & Risk Platform")
+st.caption("Select an assignment module below to test its autonomous decisioning in 3 simple steps.")
 
-# Primary Module Navigation Switcher
+# Simple tab switcher
 active_tab = st.radio(
-    "Active Operational Console:",
+    "Choose Module:",
     options=[
-        "Operational Request Triage & Remediation (Assignment 2)",
-        "Financial Risk Signal Aggregator & AML Terminal (Assignment 1)"
+        "1. Customer Request Processing Workflow",
+        "2. Financial Risk Signal Aggregator"
     ],
     horizontal=True,
     label_visibility="collapsed"
 )
 
-st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+st.divider()
 
 
 # ==============================================================================
-# VIEW 1: OPERATIONAL REQUEST TRIAGE & REMEDIATION
+# TAB 1: CUSTOMER REQUEST WORKFLOW (ASSIGNMENT 2)
 # ==============================================================================
-if "Operational" in active_tab:
+if "Customer" in active_tab:
     sample_requests = load_sample_requests()
 
-    left_col, right_col = st.columns([5, 6], gap="large")
+    st.subheader("Step 1: Pick a Customer Request")
+    st.caption("Click any preset scenario to load a realistic inbound message:")
 
-    with left_col:
-        st.markdown(
-            '<div class="panel-card"><div class="panel-title">Inbound Request Dispatcher</div></div>',
-            unsafe_allow_html=True
-        )
+    col1, col2, col3 = st.columns(3)
+    preset_choice = None
 
-        st.caption("Select a pre-configured enterprise scenario or submit a custom intake payload:")
-        btn_c1, btn_c2, btn_c3 = st.columns(3)
-        loaded_scenario = None
+    if sample_requests:
+        with col1:
+            if st.button("💳 Billing Dispute", width="stretch"):
+                preset_choice = sample_requests[0]
+        with col2:
+            if st.button("🚨 System Outage", width="stretch"):
+                preset_choice = sample_requests[1]
+        with col3:
+            if st.button("❓ General Inquiry", width="stretch"):
+                preset_choice = sample_requests[2]
 
-        if sample_requests:
-            with btn_c1:
-                if st.button("Billing Dispute", width="stretch"):
-                    loaded_scenario = sample_requests[0]
-            with btn_c2:
-                if st.button("Critical 500 Outage", width="stretch"):
-                    loaded_scenario = sample_requests[1]
-            with btn_c3:
-                if st.button("General Inquiry", width="stretch"):
-                    loaded_scenario = sample_requests[2]
+    if preset_choice:
+        st.session_state["req_text"] = preset_choice["text"]
+        st.session_state["req_sender"] = preset_choice["sender"]
 
-        if loaded_scenario:
-            st.session_state["v1_text"] = loaded_scenario["text"]
-            st.session_state["v1_sender"] = loaded_scenario["sender"]
+    current_text = st.session_state.get(
+        "req_text",
+        "URGENT: I was double-charged on invoice INV-88942 for our subscription. The amount of $4,950.00 was debited twice this morning. Please reverse immediately!"
+    )
+    current_sender = st.session_state.get("req_sender", "elena.rostova@acmefinance.com")
 
-        with st.form("triage_form"):
-            sender_val = st.text_input(
-                "Requester Identity / Channel:",
-                value=st.session_state.get("v1_sender", "elena.rostova@acmefinance.com")
-            )
-            text_val = st.text_area(
-                "Raw Request Payload:",
-                value=st.session_state.get("v1_text", "URGENT: I was double-charged on invoice INV-88942 for our enterprise subscription. The charge of $4,950.00 was debited twice this morning. Please reverse immediately!"),
-                height=130
-            )
-            dispatch_btn = st.form_submit_button("Trigger Autonomous Triage", type="primary", width="stretch")
+    with st.expander("Review / Edit Incoming Message Details", expanded=False):
+        current_sender = st.text_input("Sender Email:", value=current_sender)
+        current_text = st.text_area("Message Body:", value=current_text, height=100)
 
-        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-        st.markdown(
-            '<div class="panel-card"><div class="panel-title">Operations Audit Ledger</div></div>',
-            unsafe_allow_html=True
-        )
-        records = get_audit_records(limit=8)
-        if records:
-            df = pd.DataFrame(records)[["timestamp", "request_id", "category", "urgency", "assigned_queue", "sla_hours"]]
-            st.dataframe(df, width="stretch", height=210)
-        else:
-            st.caption("No historical requests recorded in database yet.")
-
-    with right_col:
-        st.markdown(
-            '<div class="panel-card"><div class="panel-title">Remediation Execution Telemetry</div></div>',
-            unsafe_allow_html=True
-        )
-
-        req_to_process = text_val if dispatch_btn else st.session_state.get("v1_text", "URGENT: I was double-charged on invoice INV-88942 for $4,950.00. Please reverse immediately!")
-        sender_to_process = sender_val if dispatch_btn else st.session_state.get("v1_sender", "elena.rostova@acmefinance.com")
-
-        result = WorkflowRemediationEngine.execute(req_to_process, sender=sender_to_process)
-
-        # KPI Metrics Row
-        kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
-        urgency_class = "chip-critical" if result.classification.urgency == "Critical" else ("chip-high" if result.classification.urgency == "High" else "chip-normal")
-
-        with kpi_c1:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Category</div><div class="kpi-val" style="font-size: 1.0rem;">{result.classification.category}</div></div>',
-                unsafe_allow_html=True
-            )
-        with kpi_c2:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Urgency</div><div class="kpi-val"><span class="{urgency_class}">{result.classification.urgency}</span></div></div>',
-                unsafe_allow_html=True
-            )
-        with kpi_c3:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Target Queue</div><div class="kpi-val" style="font-size: 0.92rem;">{result.assigned_queue}</div></div>',
-                unsafe_allow_html=True
-            )
-        with kpi_c4:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">SLA Window</div><div class="kpi-val">{result.sla_hours} <span style="font-size: 0.8rem; color: #64748b;">Hrs</span></div></div>',
-                unsafe_allow_html=True
-            )
-
-        st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"**Branch Invocation:** `{result.remediation_branch}` (Ticket: `{result.request_id}`)")
-
-        # Vertical Stepper
-        for step in result.steps_executed:
-            step_html = (
-                '<div class="timeline-step">'
-                f'  <div class="timeline-num">{step.step_number}</div>'
-                '  <div class="timeline-content">'
-                f'    <div class="timeline-step-title">{step.action_name} <span class="chip-safe" style="float: right;">{step.status}</span></div>'
-                f'    <div class="timeline-step-desc">{step.description}</div>'
-                '  </div>'
-                '</div>'
-            )
-            st.markdown(step_html, unsafe_allow_html=True)
-
-        if result.classification.key_entities:
-            st.markdown(f"**Extracted Entities:** `{json.dumps(result.classification.key_entities)}`")
-
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-        st.markdown("**Tailored Customer Communication (Prepared for Dispatch):**")
-        st.text_area("Draft Communication:", value=result.draft_response, height=170, label_visibility="collapsed")
-
-
-# ==============================================================================
-# VIEW 2: FINANCIAL RISK SIGNAL AGGREGATOR & AML TERMINAL
-# ==============================================================================
-else:
     st.markdown(
-        '<div class="panel-card"><div class="panel-title">Financial Crime & AML Risk Assessment Console</div></div>',
+        f'<div class="email-box"><strong>From:</strong> {current_sender}<br><br>{current_text}</div>',
         unsafe_allow_html=True
     )
 
-    pcol1, pcol2 = st.columns(2)
-    load_high_risk = False
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+    st.subheader("Step 2: Run Automated Triage")
+    run_btn = st.button("Process & Execute Workflow", type="primary", width="stretch")
+
+    # Run analysis
+    result = WorkflowRemediationEngine.execute(current_text, sender=current_sender)
+
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+    st.subheader("Step 3: What the System Did")
+
+    # Banner Class
+    if result.classification.urgency == "Critical":
+        banner_class = "result-banner-critical"
+    elif result.classification.urgency == "High":
+        banner_class = "result-banner-high"
+    else:
+        banner_class = "result-banner-normal"
+
+    st.markdown(f"""
+    <div class="{banner_class}">
+        <div class="banner-heading">{result.classification.category} ({result.classification.urgency} Urgency)</div>
+        <div class="banner-detail">
+            Assigned to: <strong>{result.assigned_queue}</strong> | 
+            Resolution SLA: <strong>{result.sla_hours} Hours</strong> | 
+            Ticket ID: <code>{result.request_id}</code>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Actions Checklist
+    st.markdown("**Automated Actions Executed:**")
+    for step in result.steps_executed:
+        st.markdown(f"""
+        <div class="step-item">
+            <div class="step-badge">{step.step_number}</div>
+            <div>
+                <div class="step-name">{step.action_name}</div>
+                <div class="step-desc">{step.description}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Generated response
+    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+    st.markdown("**AI-Drafted Reply (Ready to Send):**")
+    st.markdown(f'<div class="email-box">{result.draft_response}</div>', unsafe_allow_html=True)
+
+    # Tucked away audit trail
+    with st.expander("View Past Processed Tickets (Audit Trail)"):
+        records = get_audit_records(limit=10)
+        if records:
+            df = pd.DataFrame(records)[["timestamp", "request_id", "category", "urgency", "assigned_queue", "sla_hours"]]
+            st.dataframe(df, width="stretch")
+
+
+# ==============================================================================
+# TAB 2: FINANCIAL RISK AGGREGATOR (ASSIGNMENT 1)
+# ==============================================================================
+else:
+    st.subheader("Step 1: Pick a Client Account Case")
+    st.caption("Select a scenario to evaluate its transaction patterns:")
+
+    c_col1, c_col2 = st.columns(2)
+    load_high = False
     load_clean = False
 
-    with pcol1:
-        if st.button("Load Case A: High-Risk Offshore Structuring & PEP (ACC-9041)", width="stretch"):
-            load_high_risk = True
-    with pcol2:
-        if st.button("Load Case B: Clean Retail Merchant Account (ACC-1001)", width="stretch"):
+    with c_col1:
+        if st.button("🚨 Suspicious Offshore Account (High Risk)", width="stretch"):
+            load_high = True
+    with c_col2:
+        if st.button("✅ Normal Everyday Account (Low Risk)", width="stretch"):
             load_clean = True
 
     default_csv = (
@@ -390,97 +301,97 @@ else:
             "TX-1003,1450.00,USD,USA,USA,PAYROLL_DEPOSIT\n"
             "TX-1004,65.00,USD,USA,USA,CARD_PURCHASE"
         )
-        st.session_state["v2_acc"] = "ACC-1001"
-        st.session_state["v2_name"] = "Johnathan Mercer"
-        st.session_state["v2_pep"] = False
-        st.session_state["v2_tenure"] = 36
-    elif load_high_risk:
-        st.session_state["v2_acc"] = "ACC-9041"
-        st.session_state["v2_name"] = "Vanguard Maritime Trade Ltd"
-        st.session_state["v2_pep"] = True
-        st.session_state["v2_tenure"] = 1
+        st.session_state["f_acc"] = "ACC-1001"
+        st.session_state["f_name"] = "Johnathan Mercer"
+        st.session_state["f_pep"] = False
+        st.session_state["f_tenure"] = 36
+        st.session_state["f_csv"] = default_csv
+    elif load_high:
+        st.session_state["f_acc"] = "ACC-9041"
+        st.session_state["f_name"] = "Vanguard Maritime Trade Ltd"
+        st.session_state["f_pep"] = True
+        st.session_state["f_tenure"] = 1
+        st.session_state["f_csv"] = default_csv
 
-    meta_c1, meta_c2, meta_c3, meta_c4 = st.columns(4)
-    with meta_c1:
-        acc_id_input = st.text_input("Entity Account ID:", value=st.session_state.get("v2_acc", "ACC-9041"))
-    with meta_c2:
-        name_input = st.text_input("Account Legal Name:", value=st.session_state.get("v2_name", "Vanguard Maritime Trade Ltd"))
-    with meta_c3:
-        pep_input = st.checkbox("PEP Exposure Flag", value=st.session_state.get("v2_pep", True))
-    with meta_c4:
-        tenure_input = st.number_input("Account Age (Months):", min_value=1, max_value=240, value=st.session_state.get("v2_tenure", 1))
+    acc_id = st.session_state.get("f_acc", "ACC-9041")
+    acc_name = st.session_state.get("f_name", "Vanguard Maritime Trade Ltd")
+    is_pep = st.session_state.get("f_pep", True)
+    tenure = st.session_state.get("f_tenure", 1)
+    csv_text = st.session_state.get("f_csv", default_csv)
 
-    fin_left, fin_right = st.columns([5, 6], gap="large")
+    with st.expander("Review / Edit Account & Transaction Records", expanded=False):
+        c1, c2 = st.columns(2)
+        with c1:
+            acc_id = st.text_input("Account ID:", value=acc_id)
+            acc_name = st.text_input("Client Name:", value=acc_name)
+        with c2:
+            is_pep = st.checkbox("Politically Exposed Person (PEP)", value=is_pep)
+            tenure = st.number_input("Account Age (Months):", value=tenure, min_value=1)
+        csv_text = st.text_area("Transactions (CSV):", value=csv_text, height=120)
 
-    with fin_left:
-        st.markdown("**Structured Transaction Records (CSV Input):**")
-        csv_payload = st.text_area("CSV Records:", value=default_csv, height=160, label_visibility="collapsed")
-        run_aml_btn = st.button("Synthesize Risk Signals & Score Entity", type="primary", width="stretch")
+    st.markdown(f"""
+    <div class="email-box">
+        <strong>Account:</strong> {acc_name} (<code>{acc_id}</code>)<br>
+        <strong>Profile:</strong> Account Age: {tenure} month(s) | PEP Flag: {'Yes (High-Risk Person)' if is_pep else 'No'}
+    </div>
+    """, unsafe_allow_html=True)
 
-        parsed_txs = FinancialRiskAggregator.parse_csv_transactions(csv_payload)
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"**Normalized Ledger Entries ({len(parsed_txs)} Total):**")
-        st.dataframe(pd.DataFrame(parsed_txs), width="stretch", height=220)
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+    st.subheader("Step 2: Run Risk Detection")
+    run_risk_btn = st.button("Evaluate Account Risk", type="primary", width="stretch")
 
-    with fin_right:
-        account_meta = {
-            "account_id": acc_id_input,
-            "customer_name": name_input,
-            "jurisdiction": "Offshore",
-            "pep_status": pep_input,
-            "account_tenure_months": tenure_input
-        }
-        profile = FinancialRiskAggregator.analyze_dataset(parsed_txs, account_meta)
+    # Parse and compute
+    txs = FinancialRiskAggregator.parse_csv_transactions(csv_text)
+    account_meta = {
+        "account_id": acc_id,
+        "customer_name": acc_name,
+        "jurisdiction": "Offshore",
+        "pep_status": is_pep,
+        "account_tenure_months": tenure
+    }
+    profile = FinancialRiskAggregator.analyze_dataset(txs, account_meta)
 
-        score_class = "chip-critical" if profile.risk_score >= 70 else ("chip-high" if profile.risk_score >= 45 else ("chip-normal" if profile.risk_score >= 20 else "chip-safe"))
-        sc1, sc2, sc3, sc4 = st.columns(4)
-        with sc1:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Risk Score</div><div class="kpi-val">{profile.risk_score} <span style="font-size: 0.8rem; color: #64748b;">/ 100</span></div></div>',
-                unsafe_allow_html=True
-            )
-        with sc2:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Priority Tier</div><div class="kpi-val"><span class="{score_class}">{profile.risk_level}</span></div></div>',
-                unsafe_allow_html=True
-            )
-        with sc3:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Volume USD</div><div class="kpi-val" style="font-size: 1.15rem;">${profile.total_volume_usd:,.0f}</div></div>',
-                unsafe_allow_html=True
-            )
-        with sc4:
-            st.markdown(
-                f'<div class="kpi-tile"><div class="kpi-label">Alert Count</div><div class="kpi-val">{len(profile.flagged_signals)}</div></div>',
-                unsafe_allow_html=True
-            )
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+    st.subheader("Step 3: Risk Assessment Results")
 
-        st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+    # Score Banner
+    if profile.risk_score >= 70:
+        b_class = "result-banner-critical"
+    elif profile.risk_score >= 45:
+        b_class = "result-banner-high"
+    else:
+        b_class = "result-banner-normal"
 
-        if profile.risk_score >= 45:
-            st.markdown(
-                f'<div class="banner-danger"><strong>MANDATORY ACTION:</strong> {profile.recommended_action}</div>',
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(
-                f'<div class="banner-success"><strong>COMPLIANCE STATUS:</strong> {profile.recommended_action}</div>',
-                unsafe_allow_html=True
-            )
+    st.markdown(f"""
+    <div class="{b_class}">
+        <div class="banner-heading">Risk Score: {profile.risk_score} / 100 ({profile.risk_level} Priority)</div>
+        <div class="banner-detail">
+            Total Volume Analyzed: <strong>${profile.total_volume_usd:,.2f}</strong> across <strong>{profile.total_transactions_analyzed} transactions</strong><br>
+            <strong>Recommended Action:</strong> {profile.recommended_action}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-        st.markdown("**AI Compliance Officer Narrative Rationale:**")
-        st.info(profile.ai_narrative_summary)
+    # Narrative Rationale
+    st.markdown("**Compliance Analyst Rationale:**")
+    st.info(profile.ai_narrative_summary)
 
-        st.markdown("**Identified Risk Signals & Threat Vectors:**")
-        if profile.flagged_signals:
-            sig_list = []
-            for s in profile.flagged_signals:
-                sig_list.append({
-                    "Threat Vector": s.rule_name,
-                    "Severity": s.severity,
-                    "Impact": f"+{s.score_contribution} pts",
-                    "Evidence": s.description
-                })
-            st.dataframe(pd.DataFrame(sig_list), width="stretch", height=190)
-        else:
-            st.success("Zero adverse indicators or anomalous velocity patterns identified.")
+    # Red Flags Found
+    if profile.flagged_signals:
+        st.markdown("**Specific Red Flags Identified:**")
+        for sig in profile.flagged_signals:
+            st.markdown(f"""
+            <div class="step-item">
+                <div class="step-badge" style="background: #dc2626;">!</div>
+                <div>
+                    <div class="step-name">{sig.rule_name} (+{sig.score_contribution} pts)</div>
+                    <div class="step-desc">{sig.description}</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.success("No anomalies or red flags detected in this account.")
+
+    # Ingested transactions tucked in an expander
+    with st.expander("View Raw Bank Statement Records"):
+        st.dataframe(pd.DataFrame(txs), width="stretch")
