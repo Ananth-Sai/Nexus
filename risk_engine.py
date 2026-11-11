@@ -321,15 +321,20 @@ class FinancialRiskAggregator:
                 "volume_percentage": pct
             }
 
-        # 3. Check for structuring / smurfing / cash queries (near $10k or cash deposits)
-        if any(w in q_lower for w in ["structuring", "smurfing", "under 10k", "below 10,000", "10000", "cash"]):
+        # 3. Check for pure cash or deposit queries
+        if any(w in q_lower for w in ["cash", "deposit", "atm"]):
             matched = [
                 t for t in transactions
-                if (8500.0 <= float(t.get("amount", 0.0)) < 10000.0) or ("cash" in str(t.get("tx_type", "")).lower())
+                if "cash" in str(t.get("tx_type", "")).lower()
+                or "dep" in str(t.get("tx_type", "")).lower()
+                or "cash" in str(t.get("description", "")).lower()
             ]
             tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
             pct = round((tot_val / account_total * 100), 1) if account_total > 0 else 0.0
-            answer = f"Found {len(matched)} transaction(s) structured just beneath reporting thresholds or cash deposits, totaling ${tot_val:,.2f} ({pct}% of volume)."
+            if matched:
+                answer = f"Found {len(matched)} cash or deposit transaction(s), totaling ${tot_val:,.2f} ({pct}% of volume)."
+            else:
+                answer = f"Zero cash transactions identified in this ledger. All records are electronic wires or transfers."
             return {
                 "answer": answer,
                 "matched_txs": matched,
@@ -339,7 +344,22 @@ class FinancialRiskAggregator:
                 "volume_percentage": pct
             }
 
-        # 4. Check for total volume / sum queries
+        # 4. Check for structuring / smurfing queries (near $10k)
+        if any(w in q_lower for w in ["structuring", "smurfing", "under 10k", "below 10,000", "threshold"]):
+            matched = [t for t in transactions if 8500.0 <= float(t.get("amount", 0.0)) < 10000.0]
+            tot_val = sum(float(t.get("amount", 0.0)) for t in matched)
+            pct = round((tot_val / account_total * 100), 1) if account_total > 0 else 0.0
+            answer = f"Found {len(matched)} transaction(s) structured just beneath the $10,000 reporting threshold, totaling ${tot_val:,.2f} ({pct}% of volume)."
+            return {
+                "answer": answer,
+                "matched_txs": matched,
+                "total_matched": len(matched),
+                "total_matched_volume": tot_val,
+                "account_total_volume": account_total,
+                "volume_percentage": pct
+            }
+
+        # 5. Check for total volume / sum queries
         if any(w in q_lower for w in ["total", "volume", "sum", "how much"]):
             tot_val = account_total
             answer = f"The account has a total transaction volume of ${tot_val:,.2f} across all {len(transactions)} record(s)."
@@ -352,7 +372,7 @@ class FinancialRiskAggregator:
                 "volume_percentage": 100.0
             }
 
-        # 5. Fallback keyword filter
+        # 6. Fallback keyword filter
         keywords = [w for w in q_lower.split() if len(w) > 2 and w not in ["show", "find", "what", "which", "with", "where", "the", "for"]]
         if keywords:
             matched = [

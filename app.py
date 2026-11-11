@@ -524,37 +524,28 @@ else:
         else:
             st.success("No anomalies or red flags detected in this account.")
 
-        # Natural Language Query Section (Rubric Optional Enhancement)
+        # Natural Language Query Section
         st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
-            <span style="font-weight: 700; font-size: 1.05rem; color: #f8fafc;">
-                Interactive Natural Language Risk Interrogation
-            </span>
-            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: #334155; padding: 2px 8px; border-radius: 4px;">
-                Rubric Bonus
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("**Interactive Natural Language Risk Interrogation**")
         st.caption("Ask conversational questions about transaction flows, high-risk corridors, or structuring thresholds:")
 
         q_col1, q_col2, q_col3, q_col4 = st.columns(4)
         preset_q = None
         with q_col1:
-            if st.button("Wires > $9,000", width="stretch"):
-                preset_q = "Show wires over 9000"
+            if st.button("Large Wires > $50k", width="stretch"):
+                preset_q = "Show transactions over 50000"
         with q_col2:
             if st.button("Offshore Havens", width="stretch"):
                 preset_q = "Which transactions went to offshore countries?"
         with q_col3:
-            if st.button("Cash / Structuring", width="stretch"):
-                preset_q = "Show structured cash deposits under 10k"
+            if st.button("Cash Transactions", width="stretch"):
+                preset_q = "Show cash transactions"
         with q_col4:
             if st.button("Total Volume", width="stretch"):
                 preset_q = "What is the total transaction volume?"
 
         if "user_nl_query" not in st.session_state:
-            st.session_state["user_nl_query"] = "Show wires over 9000"
+            st.session_state["user_nl_query"] = "Which transactions went to offshore countries?"
 
         if preset_q:
             st.session_state["user_nl_query"] = preset_q
