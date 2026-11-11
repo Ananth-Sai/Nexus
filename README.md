@@ -33,21 +33,7 @@ python -m pytest -v test_engines.py
 
 ---
 
-## 2. Deploying to Render (Free Hosting)
-
-To generate a live hosted URL for your evaluation submission:
-1. Push this repository to your GitHub account (`git push origin main`).
-2. Log into [Render.com](https://render.com) and click **New +** $\rightarrow$ **Web Service**.
-3. Connect your repository.
-4. Set the following build settings:
-   - **Environment:** `Python 3`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `python -m streamlit run app.py --server.port $PORT --server.address 0.0.0.0`
-5. Click **Create Web Service**. Within 2 minutes, Render will issue a public URL (e.g. `https://nexus-ai-suite.onrender.com`) to submit.
-
----
-
-## 3. Module 1: Incoming Request Processing Workflow
+## 2. Module 1: Incoming Request Processing Workflow
 
 ### Objective & Architecture
 Replaces manual, slow, and inconsistent customer support dispatching with an autonomous multi-step remediation engine.
@@ -93,7 +79,7 @@ Replaces manual, slow, and inconsistent customer support dispatching with an aut
 
 ---
 
-## 4. Module 2: Financial Risk Signal Aggregator
+## 3. Module 2: Financial Risk Signal Aggregator
 
 ### Objective & Architecture
 Empowers AML compliance analysts to synthesize fragmented signals across transactions, account velocity, and external watchlists into a single, prioritized risk profile.
@@ -140,11 +126,11 @@ Empowers AML compliance analysts to synthesize fragmented signals across transac
 
 ---
 
-## 5. Technology Stack & Key Decisions
+## 4. Technology Stack & Key Decisions
 
 | Component | Technology | Rationale |
 |---|---|---|
-| Frontend UI | Streamlit 1.35+ | High performance, interactive controls, zero JavaScript build bloat, 1-click cloud hosting. |
+| Frontend UI | Streamlit 1.35+ | High performance, interactive controls, and zero JavaScript build bloat. |
 | Data Validation | Pydantic v2 | Strict schema contracts and type safety across all pipeline steps. |
 | Storage & Audit | SQLite3 | Zero-configuration, ACID-compliant local audit persistence. |
 | AI / LLM Engine | Hybrid (GenAI + Regex Rules) | Guarantees 100% offline uptime with deterministic accuracy, with seamless LLM enrichment when API key is present. |
@@ -152,7 +138,7 @@ Empowers AML compliance analysts to synthesize fragmented signals across transac
 
 ---
 
-## 6. Repository Structure
+## 5. Repository Structure
 ```
 A1/
 ├── app.py                     # Multi-page Streamlit application
