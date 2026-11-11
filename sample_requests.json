@@ -3,19 +3,54 @@
     "category": "Billing Dispute",
     "scenarios": [
       {
-        "title": "Duplicate Corporate Charge ($4,950)",
+        "title": "Scenario 1: Duplicate Corporate Debit ($4,950)",
         "sender": "elena.rostova@acmefinance.com",
         "text": "URGENT: I was double-charged on invoice INV-88942 for our enterprise subscription. The charge of $4,950.00 was debited twice from our corporate card this morning. Please reverse the duplicate charge immediately and confirm credit!"
       },
       {
-        "title": "Annual Subscription Refund After Cancellation ($1,200)",
+        "title": "Scenario 2: Annual Plan Refund After Cancellation ($1,200)",
         "sender": "marcus.todd@apexretail.io",
         "text": "Hello, our team cancelled our annual plan last week, but invoice INV-41029 for $1,200.00 was still charged to our account yesterday. Kindly process a full refund to our original payment method as per your 30-day money-back policy."
       },
       {
-        "title": "Unauthorized Add-on Fee Dispute ($680)",
+        "title": "Scenario 3: Unauthorized Add-on Fee Dispute ($680)",
         "sender": "billing-support@cloudscale.net",
         "text": "We are disputing invoice INV-99310. An unexpected overage charge of $680.00 appeared on our statement without prior notification. We request an immediate ledger review and credit adjustment."
+      },
+      {
+        "title": "Scenario 4: Sales Tax Exemption Overcharge ($345.50)",
+        "sender": "finance@nonprofit-alliance.org",
+        "text": "Our 501(c)(3) tax exemption certificate is on file under account #4491, yet invoice INV-77182 charged $345.50 in state sales tax. Please re-issue an exempt credit memo."
+      },
+      {
+        "title": "Scenario 5: Prorated Seat License Discrepancy ($2,100)",
+        "sender": "procurement@globalhealth.com",
+        "text": "Invoice INV-55201 bills us for 50 additional seats at $2,100.00, but our IT de-provisioned 15 seats midway through the billing cycle. Please recalculate prorated usage and refund the delta."
+      },
+      {
+        "title": "Scenario 6: Currency Exchange Rate Surcharge Dispute ($890)",
+        "sender": "accounts-payable@eurocorp.co.uk",
+        "text": "We were billed in USD rather than EUR on invoice INV-66412, resulting in an unauthorized foreign exchange fee of $890.00. Please align billing currency to GBP as contracted."
+      },
+      {
+        "title": "Scenario 7: Free Trial Auto-Renewal Reversal ($299)",
+        "sender": "dev-founder@startuphub.io",
+        "text": "I was automatically charged $299.00 on invoice INV-11029 when our trial expired last night. We never intended to convert to paid. Please cancel immediately and reverse this charge."
+      },
+      {
+        "title": "Scenario 8: Erroneous Metered API Overcharge ($5,400)",
+        "sender": "cto@streamlytics.ai",
+        "text": "Our internal telemetry logs show 2.1M API calls this month, but invoice INV-33902 bills us for 6.8M calls totaling $5,400.00. Please halt autopay and investigate ingestion metrics."
+      },
+      {
+        "title": "Scenario 9: Unapplied Pre-Paid Account Credits ($1,500)",
+        "sender": "treasury@logisticsplus.com",
+        "text": "We hold $1,500.00 in pre-paid credits from our Q3 contract settlement. Invoice INV-22019 debited our card in full without applying our active credit balance. Reverse the debit immediately."
+      },
+      {
+        "title": "Scenario 10: SLA Breach Service Credit Request ($3,800)",
+        "sender": "legal-contracts@enterprise-bank.com",
+        "text": "Pursuant to Section 8.2 of our Master Services Agreement, the 4-hour system outage on Nov 4 triggers an automatic 15% SLA service credit ($3,800.00) against invoice INV-88102. Please issue credit."
       }
     ]
   },
@@ -23,19 +58,54 @@
     "category": "Technical Escalation",
     "scenarios": [
       {
-        "title": "Production Checkout API 500 Crash",
+        "title": "Scenario 1: Production Checkout API 500 Crash",
         "sender": "devops-lead@globalpay.io",
         "text": "CRITICAL EMERGENCY: The Payment Checkout API gateway is returning HTTP 500 Internal Server Errors across all US-East clusters. Error code ERR_GATEWAY_TIMEOUT_504 is spiking to 87%. Our merchant checkouts are completely blocked!"
       },
       {
-        "title": "Database Connection Pool Deadlock",
+        "title": "Scenario 2: Database Connection Pool Deadlock",
         "sender": "sre-alerts@fintechcore.com",
         "text": "SEV-1 ALERT: Primary PostgreSQL read-replica cluster is in an active deadlock loop. All authentication microservices are timing out with 503 Service Unavailable. User logins are failing worldwide!"
       },
       {
-        "title": "Single Sign-On (SSO) SAML Token Failure",
+        "title": "Scenario 3: Single Sign-On (SSO) SAML Token Failure",
         "sender": "it-ops@enterprise-vault.org",
         "text": "URGENT ESCALATION: Okta and Azure AD SSO logins have completely failed across our organization. 1,400 employees are locked out of the core dashboard with error ERR_SAML_HANDSHAKE_INVALID."
+      },
+      {
+        "title": "Scenario 4: Webhook Delivery Silent Dropping",
+        "sender": "integrations@partnerpay.com",
+        "text": "P1 INCIDENT: Inbound payment notification webhooks have stopped delivering since 09:00 UTC. Error code ERR_SOCKET_CLOSED. Over 15,000 transaction receipts are queued and dropping."
+      },
+      {
+        "title": "Scenario 5: Corrupted Index on Search Microservice",
+        "sender": "infra-ops@ecommerce-market.com",
+        "text": "Our ElasticSearch cluster nodes are failing memory health checks with exit code 137 (OOM). Catalog search queries are throwing 502 Bad Gateway across all mobile applications."
+      },
+      {
+        "title": "Scenario 6: Expired SSL Certificate on Core Ingestion Endpoint",
+        "sender": "security-monitoring@networkdefense.net",
+        "text": "ALERT: SSL wildcard certificate for api.core-domain.com expired 20 minutes ago. All TLS handshakes are failing with SEC_ERROR_EXPIRED_CERTIFICATE, severing API client connections."
+      },
+      {
+        "title": "Scenario 7: Data Ingestion Pipeline Latency Lag (>120 Mins)",
+        "sender": "data-engineering@streamcloud.io",
+        "text": "Kafka consumer group consumer-risk-v1 has a backlog exceeding 4.2 million unprocessed events. Pipeline latency has climbed to 134 minutes. Real-time fraud detection is blinded."
+      },
+      {
+        "title": "Scenario 8: Production Kubernetes Pod CrashLoopBackOff",
+        "sender": "duty-engineer@fastscale.cloud",
+        "text": "All 18 pods in the order-fulfillment namespace entered CrashLoopBackOff following the 11:30 deployment. Error: fatal runtime error: index out of range. Rolling back immediately."
+      },
+      {
+        "title": "Scenario 9: Rate Limiter False Positives Blocking Whitelisted IPs",
+        "sender": "network-admin@telecom-corp.net",
+        "text": "Our dedicated enterprise proxy IPs are being blocked with HTTP 429 Too Many Requests despite our custom 50,000 req/min agreement. Critical batch transfers are halting."
+      },
+      {
+        "title": "Scenario 10: Asynchronous File Export Worker Crash",
+        "sender": "reporting-lead@analytics-corp.com",
+        "text": "Background Celery workers processing CSV ledger exports are dying with SIGKILL. 350+ customer compliance reports are stalled in PENDING state."
       }
     ]
   },
@@ -43,19 +113,54 @@
     "category": "General Inquiry",
     "scenarios": [
       {
-        "title": "Security & GDPR Audit Logging Standards",
+        "title": "Scenario 1: Security & GDPR Audit Logging Standards",
         "sender": "compliance-officer@securehealth.de",
         "text": "Hello, our security team is reviewing your compliance posture. Could you provide your SOC2 Type II report and clarify whether your audit ledger supports GDPR data deletion workflows and immutable JSON exports?"
       },
       {
-        "title": "API Rate Limits & Webhook Retry Policies",
+        "title": "Scenario 2: API Rate Limits & Webhook Retry Policies",
         "sender": "lead-architect@appflow.co",
         "text": "Hi Support team, we are planning our production rollout next month. What are the standard rate limits for the batch ingestion endpoints, and does your webhook dispatcher use exponential backoff for retries?"
       },
       {
-        "title": "Multi-Tenant Role-Based Access Control (RBAC)",
+        "title": "Scenario 3: Multi-Tenant Role-Based Access Control (RBAC)",
         "sender": "workspace-admin@saasgroup.com",
         "text": "Good day, does your enterprise tier allow custom RBAC role creation with granular read/write scopes for audit logs, or are we limited to predefined Admin and Member roles?"
+      },
+      {
+        "title": "Scenario 4: Data Residency & Regional Cloud Hosting",
+        "sender": "legal-eu@nordic-fintech.se",
+        "text": "Can you confirm if your platform offers data residency guarantees within the EU (Frankfurt / Dublin regions) for transactional data to satisfy local financial privacy regulations?"
+      },
+      {
+        "title": "Scenario 5: Multi-Factor Authentication (MFA) Enforcement",
+        "sender": "ciso@fin-advisors.com",
+        "text": "Does your administrative portal allow organizational admins to mandate hardware security keys (FIDO2 / WebAuthn) for all operators, or is SMS 2FA optional per user?"
+      },
+      {
+        "title": "Scenario 6: Sandbox Testing Environment Availability",
+        "sender": "developer-experience@paybridge.io",
+        "text": "We are building our integration test suite. Do you provide a permanent sandbox environment with simulated webhook triggers, or do we test against synthetic production keys?"
+      },
+      {
+        "title": "Scenario 7: Custom Domain & Whitelabel Email Branding",
+        "sender": "marketing-ops@brandwave.com",
+        "text": "Can we configure custom DKIM and SPF records so that automated remediation notifications and ticket status emails originate from our corporate domain rather than your default sender?"
+      },
+      {
+        "title": "Scenario 8: High-Availability SLA Guarantees (99.99%)",
+        "sender": "operations-dir@clearinghouse.org",
+        "text": "What is the contractual uptime commitment on your Enterprise tier? Does your standard agreement include financially backed 99.99% multi-region failover provisions?"
+      },
+      {
+        "title": "Scenario 9: Audit Log Data Retention Limits",
+        "sender": "compliance-analyst@banking-partners.com",
+        "text": "What is the default retention period for SQLite audit trail logs, and do you support automated weekly archiving to external Amazon S3 or Google Cloud Storage buckets?"
+      },
+      {
+        "title": "Scenario 10: Supported Payment Gateways & Currencies",
+        "sender": "expansion-manager@globex.asia",
+        "text": "We are expanding operations into Singapore and Japan. Which local payment methods (PayNow, Konbini) and Asian currencies (SGD, JPY, HKD) are natively supported on your billing rails?"
       }
     ]
   }

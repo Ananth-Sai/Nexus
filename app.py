@@ -209,32 +209,42 @@ if "Customer" in active_tab:
     chosen_category = None
     chosen_scenario = None
 
+    b_total = len(scenario_groups[0]["scenarios"]) if scenario_groups else 10
+    t_total = len(scenario_groups[1]["scenarios"]) if len(scenario_groups) > 1 else 10
+    g_total = len(scenario_groups[2]["scenarios"]) if len(scenario_groups) > 2 else 10
+
     with col1:
-        if st.button("Billing Dispute (Click to cycle)", width="stretch"):
+        b_num = (st.session_state["billing_idx"] % b_total) + 1
+        if st.button(f"Billing Dispute ({b_num}/{b_total})", width="stretch"):
             if scenario_groups:
                 b_list = scenario_groups[0]["scenarios"]
                 st.session_state["billing_idx"] = (st.session_state["billing_idx"] + 1) % len(b_list)
                 chosen_scenario = b_list[st.session_state["billing_idx"]]
                 st.session_state["active_req"] = chosen_scenario
                 st.session_state["workflow_executed"] = False
+                st.rerun()
 
     with col2:
-        if st.button("System Outage (Click to cycle)", width="stretch"):
+        t_num = (st.session_state["tech_idx"] % t_total) + 1
+        if st.button(f"System Outage ({t_num}/{t_total})", width="stretch"):
             if len(scenario_groups) > 1:
                 t_list = scenario_groups[1]["scenarios"]
                 st.session_state["tech_idx"] = (st.session_state["tech_idx"] + 1) % len(t_list)
                 chosen_scenario = t_list[st.session_state["tech_idx"]]
                 st.session_state["active_req"] = chosen_scenario
                 st.session_state["workflow_executed"] = False
+                st.rerun()
 
     with col3:
-        if st.button("General Inquiry (Click to cycle)", width="stretch"):
+        g_num = (st.session_state["gen_idx"] % g_total) + 1
+        if st.button(f"General Inquiry ({g_num}/{g_total})", width="stretch"):
             if len(scenario_groups) > 2:
                 g_list = scenario_groups[2]["scenarios"]
                 st.session_state["gen_idx"] = (st.session_state["gen_idx"] + 1) % len(g_list)
                 chosen_scenario = g_list[st.session_state["gen_idx"]]
                 st.session_state["active_req"] = chosen_scenario
                 st.session_state["workflow_executed"] = False
+                st.rerun()
 
     # Default request on first load
     if "active_req" not in st.session_state:
@@ -355,23 +365,57 @@ else:
         "TX-1004,65.00,USD,USA,USA,CARD_PURCHASE"
     )
 
+    pep_csv = (
+        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
+        "TX-701,48000.00,USD,USA,Cyprus,WIRE_OUT\n"
+        "TX-702,65000.00,USD,USA,Seychelles,WIRE_OUT\n"
+        "TX-703,9800.00,USD,USA,Panama,WIRE_OUT"
+    )
+
+    velocity_csv = (
+        "tx_id,amount,currency,source_country,destination_country,tx_type\n"
+        "TX-801,25000.00,USD,USA,USA,WIRE_IN\n"
+        "TX-802,32000.00,USD,USA,USA,WIRE_OUT\n"
+        "TX-803,12000.00,USD,USA,USA,CARD_PAYMENT"
+    )
+
     with c_col1:
-        if st.button("Suspicious Offshore Account (High Risk)", width="stretch"):
+        if st.button("Offshore Structuring & Sanctions (Critical)", width="stretch"):
             st.session_state["f_acc"] = "ACC-9041"
             st.session_state["f_name"] = "Vanguard Maritime Trade Ltd"
             st.session_state["f_pep"] = True
             st.session_state["f_tenure"] = 1
             st.session_state["f_csv"] = high_risk_csv
             st.session_state["risk_evaluated"] = False
+            st.rerun()
+
+        if st.button("PEP Foreign Official Entity (High Risk)", width="stretch"):
+            st.session_state["f_acc"] = "ACC-4109"
+            st.session_state["f_name"] = "Eurasia Capital Partners LLC"
+            st.session_state["f_pep"] = True
+            st.session_state["f_tenure"] = 8
+            st.session_state["f_csv"] = pep_csv
+            st.session_state["risk_evaluated"] = False
+            st.rerun()
 
     with c_col2:
-        if st.button("Normal Everyday Account (Low Risk)", width="stretch"):
+        if st.button("Clean Everyday Account (Low Risk)", width="stretch"):
             st.session_state["f_acc"] = "ACC-1001"
             st.session_state["f_name"] = "Johnathan Mercer"
             st.session_state["f_pep"] = False
             st.session_state["f_tenure"] = 36
             st.session_state["f_csv"] = clean_csv
             st.session_state["risk_evaluated"] = False
+            st.rerun()
+
+        if st.button("New Account Velocity Spike (Medium Risk)", width="stretch"):
+            st.session_state["f_acc"] = "ACC-8812"
+            st.session_state["f_name"] = "Rapid Logistics Express"
+            st.session_state["f_pep"] = False
+            st.session_state["f_tenure"] = 1
+            st.session_state["f_csv"] = velocity_csv
+            st.session_state["risk_evaluated"] = False
+            st.rerun()
 
     acc_id = st.session_state.get("f_acc", "ACC-9041")
     acc_name = st.session_state.get("f_name", "Vanguard Maritime Trade Ltd")
