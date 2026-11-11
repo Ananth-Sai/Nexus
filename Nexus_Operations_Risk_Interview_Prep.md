@@ -404,6 +404,20 @@ python -m pytest -v test_engines.py
 
 ---
 
+### Q18: "How do you structure presentation slides so they don't look like generic AI-generated bullet walls?"
+**Answer:**
+> "Generic AI presentation generators default to the same layout on every slide: 3 identical rectangular cards filled with dense bullet points.
+>
+> To produce human, executive-grade presentations, every slide must have a distinct functional layout matching its communication goal:
+> 1. **Slide 1 (Executive Summary):** Asymmetric split hero layout (bold problem stat on the left + 3 clear objective pillars on the right).
+> 2. **Slide 2 (Architecture):** A horizontal 4-step process pipeline with directional flow arrows (`Intake -> Classify -> Remediate -> Audit`), not disconnected cards.
+> 3. **Slide 3 (Implementation):** Two-column deep dive with code snippets, Pydantic schemas, and component badges.
+> 4. **Slide 4 (Challenges):** A side-by-side comparison table pairing operational failure modes (red/amber) against exact engineering resolutions (emerald).
+> 5. **Slide 5 (Roadmap):** A phased horizontal milestone timeline (`Delivered Today -> Integrations -> Graph ML Scaling`).
+> This layout diversity is enforced in our Gamma specification (`GAMMA_PRESENTATION_PROMPT_AND_CONTEXT.md`)."
+
+---
+
 ## 6. LIVE FEATURE EXTENSION PLAYBOOK (4 Step-by-Step Copy-Paste Recipes)
 
 If an interviewer asks you to extend the system live on screen during the call, use these proven, copy-paste recipes:
