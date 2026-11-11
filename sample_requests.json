@@ -1,0 +1,23 @@
+[
+  {
+    "scenario_id": "billing_dispute_1",
+    "title": "Scenario 1: Critical Billing Overcharge & Double Debit",
+    "sender": "elena.rostova@acmefinance.com",
+    "category_hint": "Billing Dispute",
+    "text": "URGENT: I was double-charged on invoice INV-88942 for our enterprise subscription. The charge of $4,950.00 was debited twice from our corporate card this morning. Please reverse the duplicate charge immediately and confirm credit. This is holding up our monthly account reconciliation."
+  },
+  {
+    "scenario_id": "technical_incident_1",
+    "title": "Scenario 2: Critical Production API Outage (500 Error)",
+    "sender": "devops-leads@globalpay.io",
+    "category_hint": "Technical Escalation",
+    "text": "CRITICAL EMERGENCY: The Payment Checkout API gateway is returning HTTP 500 Internal Server Errors across all US-East clusters. Error code ERR_GATEWAY_TIMEOUT_504 is spiking to 87%. Our merchant checkouts are completely blocked! Escalate to on-call infrastructure lead immediately!"
+  },
+  {
+    "scenario_id": "general_inquiry_1",
+    "title": "Scenario 3: Standard Account Feature Inquiry",
+    "sender": "marcus.vance@innovatetech.org",
+    "category_hint": "General Inquiry",
+    "text": "Hello, our compliance team is evaluating your platform for our Q1 expansion. Could you clarify whether your audit logging module supports role-based access control (RBAC) and data retention exports in JSON format? Also, what are your standard support operating hours?"
+  }
+]

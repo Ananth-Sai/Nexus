@@ -1,0 +1,18 @@
+[
+  {
+    "alert_id": "ALT-2026-9041",
+    "account_id": "ACC-9041",
+    "alert_type": "Adverse Media / Watchlist",
+    "severity": "High",
+    "source": "Dow Jones Risk & Compliance",
+    "summary": "Entity linked to PEP family trust under investigation for cross-border capital flight."
+  },
+  {
+    "alert_id": "ALT-2026-8812",
+    "account_id": "ACC-8812",
+    "alert_type": "Sanctions Match",
+    "severity": "Critical",
+    "source": "OFAC Specially Designated Nationals List",
+    "summary": "Exact name and DOB match against designated foreign maritime shipping executive."
+  }
+]

@@ -8,6 +8,7 @@ __pycache__/
 venv/
 ENV/
 *.sqlite3
+*.db
 
 # Private guides
 guides/
