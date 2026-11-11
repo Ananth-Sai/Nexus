@@ -106,3 +106,4 @@ Consolidating Fragmented Financial Signals into an Actionable Risk View
 1. **Graph Network Analysis:** Map transaction counterparties using graph databases (Neo4j) to detect cyclical money laundering rings.
 2. **Natural Language Query Interface:** Add an AI search bar allowing compliance officers to interrogate transaction history in plain English (*"Show all wires over $5,000 to offshore accounts in November"*).
 3. **Automated SAR Generation:** Auto-fill standardized FinCEN Form 111 XML reports ready for regulatory filing.
+
