@@ -1,0 +1,258 @@
+[
+  {
+    "category": "Sanctions & Offshore Havens (Critical Risk)",
+    "scenarios": [
+      {
+        "title": "Vanguard Maritime Trade Ltd (Panama & Caymans)",
+        "account_id": "ACC-9041",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "High-velocity wires to FATF grey-list jurisdictions with an active OFAC/WorldCheck watchhit.",
+        "csv": "tx_id,amount,source_country,destination_country,tx_type\nTX-901,9450.00,USA,Cayman Islands,WIRE_OUT\nTX-902,9800.00,USA,Panama,WIRE_OUT\nTX-903,9200.00,USA,Cayman Islands,WIRE_OUT\nTX-904,9650.00,USA,Panama,WIRE_OUT\nTX-905,125000.00,USA,Switzerland,WIRE_OUT"
+      },
+      {
+        "title": "Eurasia Minerals Trust (Cyprus & Seychelles)",
+        "account_id": "ACC-4109",
+        "pep_status": true,
+        "tenure_months": 2,
+        "clue": "Sudden large capital transfers to Mediterranean and Indian Ocean offshore banking hubs.",
+        "csv": "txn_id,value,country,tx_type\nTX-411,48000.00,Cyprus,WIRE_OUT\nTX-412,65000.00,Seychelles,WIRE_OUT\nTX-413,82000.00,Cyprus,WIRE_OUT"
+      },
+      {
+        "title": "Carib Logistics Maritime (Panama Shell Firm)",
+        "account_id": "ACC-9041",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "Rapid high-value offshore transfers within 10 days of account opening.",
+        "csv": "reference,amt,destination,tx_type\nREF-101,34000.00,Panama,WIRE_OUT\nREF-102,41000.00,Cayman Islands,WIRE_OUT\nREF-103,19500.00,Panama,WIRE_OUT"
+      },
+      {
+        "title": "Levant Commodity Exchange (Vanuatu Trust)",
+        "account_id": "ACC-9041",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "Direct wire transfers to South Pacific non-cooperative tax havens.",
+        "csv": "tx_id,amount,destination_country\nTX-1,75000.00,Vanuatu\nTX-2,89000.00,Vanuatu"
+      },
+      {
+        "title": "Adriatic Shipping Partners (Russia/Iran Transit)",
+        "account_id": "ACC-9041",
+        "pep_status": true,
+        "tenure_months": 2,
+        "clue": "Transactions linked to sanctioned maritime shipping registries.",
+        "csv": "id,amount,destination\nTX-A,95000.00,Russia\nTX-B,112000.00,Cyprus"
+      },
+      {
+        "title": "Pacific Ocean Trade Capital (Seychelles)",
+        "account_id": "ACC-4109",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "High-velocity foreign currency outflow with zero prior domestic operating history.",
+        "csv": "tx_id,amount,destination_country\nTX-1,55000.00,Seychelles\nTX-2,47000.00,Seychelles\nTX-3,62000.00,Seychelles"
+      },
+      {
+        "title": "Nassau Wealth Holdings (Cayman Wire Spikes)",
+        "account_id": "ACC-9041",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "Successive high-value wire transfers to Caribbean private banks.",
+        "csv": "tx_id,amount,destination_country\nTX-01,98000.00,Cayman Islands\nTX-02,145000.00,Cayman Islands"
+      },
+      {
+        "title": "Baltic Petroleum Intermediary (Cyprus Shell)",
+        "account_id": "ACC-4109",
+        "pep_status": true,
+        "tenure_months": 2,
+        "clue": "Multiple mid-sized payments consolidating into an offshore haven entity.",
+        "csv": "tx_id,amount,destination_country\nTX-B1,38000.00,Cyprus\nTX-B2,49000.00,Cyprus\nTX-B3,51000.00,Panama"
+      },
+      {
+        "title": "Helvetia Private Assets (Swiss Outflow Spikes)",
+        "account_id": "ACC-9041",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "Massive capital flight to private banking centers with PEP exposure.",
+        "csv": "tx_id,amount,destination_country\nTX-H1,9500.00,Panama\nTX-H2,9800.00,Panama\nTX-H3,210000.00,Switzerland"
+      },
+      {
+        "title": "Bermuda Reinsurance Syndicate (FATF Grey-List)",
+        "account_id": "ACC-4109",
+        "pep_status": true,
+        "tenure_months": 1,
+        "clue": "Unregistered reinsurance payments moving through offshore intermediary entities.",
+        "csv": "tx_id,amount,destination_country\nTX-R1,9200.00,Cayman Islands\nTX-R2,9400.00,Panama\nTX-R3,88000.00,Seychelles"
+      }
+    ]
+  },
+  {
+    "category": "Structuring & Cash Smurfing (High Risk)",
+    "scenarios": [
+      {
+        "title": "Metro Cash Distribution LLC (4x $9,900 Smurfing)",
+        "account_id": "ACC-5521",
+        "pep_status": false,
+        "tenure_months": 5,
+        "clue": "Sequential domestic transfers intentionally kept just under the $10,000 reporting threshold.",
+        "csv": "tx_id,amount,destination_country\nTX-501,9900.00,USA\nTX-502,9850.00,USA\nTX-503,9750.00,USA\nTX-504,9920.00,USA"
+      },
+      {
+        "title": "Apex Auto Sales Wholesale (Cash Structuring)",
+        "account_id": "ACC-5522",
+        "pep_status": false,
+        "tenure_months": 8,
+        "clue": "Multiple cash deposits of $9,500 across consecutive business days.",
+        "csv": "tx_id,amount,destination_country\nTX-A1,9500.00,USA\nTX-A2,9600.00,USA\nTX-A3,9400.00,USA\nTX-A4,9700.00,USA"
+      },
+      {
+        "title": "Golden Gate Diamond Brokers ($9,800 Increments)",
+        "account_id": "ACC-5523",
+        "pep_status": false,
+        "tenure_months": 4,
+        "clue": "High-value asset merchant splitting invoices to avoid Currency Transaction Reports (CTR).",
+        "csv": "tx_id,amount,destination_country\nTX-G1,9800.00,USA\nTX-G2,9850.00,USA\nTX-G3,9900.00,USA"
+      },
+      {
+        "title": "Tri-State Electronics Reseller (Velocity Smurfing)",
+        "account_id": "ACC-5524",
+        "pep_status": false,
+        "tenure_months": 6,
+        "clue": "5 back-to-back automated clearinghouse transfers between $8,900 and $9,600.",
+        "csv": "tx_id,amount,destination_country\nTX-T1,8950.00,USA\nTX-T2,9100.00,USA\nTX-T3,9350.00,USA\nTX-T4,9600.00,USA"
+      },
+      {
+        "title": "Southwest Real Estate Escrow (Split Deposits)",
+        "account_id": "ACC-5525",
+        "pep_status": false,
+        "tenure_months": 12,
+        "clue": "Earnest money deposits structured into three $9,950 bank checks.",
+        "csv": "tx_id,amount,destination_country\nTX-S1,9950.00,USA\nTX-S2,9950.00,USA\nTX-S3,9950.00,USA"
+      },
+      {
+        "title": "Empire Pawn & Precious Metals (Smurfed Deposits)",
+        "account_id": "ACC-5526",
+        "pep_status": false,
+        "tenure_months": 3,
+        "clue": "Rapid cash deposits just below BSA thresholds on a new retail account.",
+        "csv": "tx_id,amount,destination_country\nTX-E1,9400.00,USA\nTX-E2,9800.00,USA\nTX-E3,9900.00,USA\nTX-E4,9300.00,USA"
+      },
+      {
+        "title": "Liberty Logistics Fleet (Multi-Terminal Fuel Wires)",
+        "account_id": "ACC-5527",
+        "pep_status": false,
+        "tenure_months": 7,
+        "clue": "Repeated $9,200 round-sum disbursements to non-standard counterparty accounts.",
+        "csv": "tx_id,amount,destination_country\nTX-L1,9200.00,USA\nTX-L2,9200.00,USA\nTX-L3,9200.00,USA"
+      },
+      {
+        "title": "Summit Consulting Group (Fictitious Sub-Consultant Wires)",
+        "account_id": "ACC-5528",
+        "pep_status": false,
+        "tenure_months": 9,
+        "clue": "Payments structured at $9,800 to avoid corporate vendor audit thresholds.",
+        "csv": "tx_id,amount,destination_country\nTX-C1,9800.00,USA\nTX-C2,9750.00,USA\nTX-C3,9890.00,USA"
+      },
+      {
+        "title": "Valley Hospitality Holdings (Payroll Account Split)",
+        "account_id": "ACC-5529",
+        "pep_status": false,
+        "tenure_months": 14,
+        "clue": "Multiple transfers right at $9,650 originating from a single entity.",
+        "csv": "tx_id,amount,destination_country\nTX-V1,9650.00,USA\nTX-V2,9650.00,USA\nTX-V3,9650.00,USA"
+      },
+      {
+        "title": "Keystone Freight Lines (Intra-Company Cash Slices)",
+        "account_id": "ACC-5530",
+        "pep_status": false,
+        "tenure_months": 6,
+        "clue": "Four deposits totaling $38,000 broken into sub-$10K slices within 72 hours.",
+        "csv": "tx_id,amount,destination_country\nTX-K1,9500.00,USA\nTX-K2,9700.00,USA\nTX-K3,9400.00,USA\nTX-K4,9400.00,USA"
+      }
+    ]
+  },
+  {
+    "category": "Clean Retail & Corporate Operations (Low Risk)",
+    "scenarios": [
+      {
+        "title": "Johnathan Mercer (Standard Consumer Household)",
+        "account_id": "ACC-1001",
+        "pep_status": false,
+        "tenure_months": 36,
+        "clue": "Normal domestic card purchases, utility payments, and recurring payroll deposits.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-1001,120.50,USA,ACH_PAYMENT\nTX-1002,84.20,USA,CARD_PURCHASE\nTX-1003,1450.00,USA,PAYROLL_DEPOSIT\nTX-1004,65.00,USA,CARD_PURCHASE"
+      },
+      {
+        "title": "Midwest Manufacturing Corp (Corporate Vendor Wires)",
+        "account_id": "ACC-3302",
+        "pep_status": false,
+        "tenure_months": 48,
+        "clue": "Established industrial supplier paying verified vendors in Germany and UK.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-301,42500.00,USA,PAYROLL_OUT\nTX-302,15400.00,Germany,VENDOR_PAYMENT\nTX-303,8900.00,UK,VENDOR_PAYMENT\nTX-304,62000.00,USA,CLIENT_DEPOSIT"
+      },
+      {
+        "title": "Clearview Dental Practice (Local Small Business)",
+        "account_id": "ACC-1002",
+        "pep_status": false,
+        "tenure_months": 60,
+        "clue": "Standard merchant processing receipts and dental supply disbursements.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-1,3400.00,USA,SUPPLY_ORDER\nTX-2,1200.00,USA,RENT_PAYMENT\nTX-3,8500.00,USA,INSURANCE_PAYMENT"
+      },
+      {
+        "title": "Greenfield Community Church (Non-Profit Operations)",
+        "account_id": "ACC-1003",
+        "pep_status": false,
+        "tenure_months": 84,
+        "clue": "Consistent small donor gifts and community outreach program funding.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-C1,450.00,USA,DONATION\nTX-C2,850.00,USA,DONATION\nTX-C3,1100.00,USA,FACILITY_UPKEEP"
+      },
+      {
+        "title": "Oakridge Family Grocery (Daily Retail Receipts)",
+        "account_id": "ACC-1004",
+        "pep_status": false,
+        "tenure_months": 24,
+        "clue": "Daily point-of-sale card batch settlements and local bakery supplier payments.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-G1,2800.00,USA,POS_BATCH\nTX-G2,3100.00,USA,POS_BATCH\nTX-G3,1400.00,USA,PRODUCE_VENDOR"
+      },
+      {
+        "title": "Pinnacle Architecture Studio (Project Milestone Fee)",
+        "account_id": "ACC-1005",
+        "pep_status": false,
+        "tenure_months": 30,
+        "clue": "Normal monthly software subscription and quarterly municipal architectural fee.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-P1,450.00,USA,CAD_SOFTWARE\nTX-P2,12500.00,USA,CLIENT_INVOICE"
+      },
+      {
+        "title": "Highland Coffee Roasters (Direct Trade Imports)",
+        "account_id": "ACC-1006",
+        "pep_status": false,
+        "tenure_months": 42,
+        "clue": "Standard agricultural green coffee bean imports from certified co-ops in Colombia.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-H1,7200.00,Colombia,AGRICULTURAL_IMPORT\nTX-H2,1850.00,USA,PACKAGING_SUPPLIER"
+      },
+      {
+        "title": "BrightPath Tutoring Academy (Seasonal Student Tuition)",
+        "account_id": "ACC-1007",
+        "pep_status": false,
+        "tenure_months": 18,
+        "clue": "Modest individual credit card payments for after-school tutoring packages.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-T1,250.00,USA,STUDENT_TUITION\nTX-T2,300.00,USA,STUDENT_TUITION\nTX-T3,1200.00,USA,INSTRUCTOR_PAYROLL"
+      },
+      {
+        "title": "Bluegrass Equine Veterinary Clinic (Healthcare Operations)",
+        "account_id": "ACC-1008",
+        "pep_status": false,
+        "tenure_months": 52,
+        "clue": "Veterinary medical supply replenishment and clinic payroll.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-V1,4100.00,USA,MED_SUPPLY\nTX-V2,6500.00,USA,STAFF_PAYROLL"
+      },
+      {
+        "title": "Apex Digital Marketing Agency (Google/Meta Ad Spend)",
+        "account_id": "ACC-1009",
+        "pep_status": false,
+        "tenure_months": 22,
+        "clue": "Routine domestic credit card debits for Google Ads and client retainer deposits.",
+        "csv": "tx_id,amount,destination_country,tx_type\nTX-M1,5000.00,USA,CLIENT_RETAINER\nTX-M2,3200.00,USA,AD_NETWORK_SPEND"
+      }
+    ]
+  }
+]
+

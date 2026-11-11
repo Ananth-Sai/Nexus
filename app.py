@@ -9,6 +9,12 @@ import json
 import os
 import streamlit as st
 import pandas as pd
+import importlib
+
+import workflow_engine
+import risk_engine
+importlib.reload(workflow_engine)
+importlib.reload(risk_engine)
 
 from workflow_engine import (
     WorkflowRemediationEngine,
