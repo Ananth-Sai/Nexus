@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+*.env.*
+.venv/
+venv/
+ENV/
+*.sqlite3
+
+# Private guides
+guides/
+study_guides/
+
+# Streamlit
+.streamlit/secrets.toml
+
