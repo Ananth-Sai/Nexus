@@ -239,32 +239,6 @@ st.divider()
 if "Customer" in active_tab:
     scenario_groups = load_category_scenarios()
 
-    with st.expander("System Architecture: 4-Stage Autonomous Pipeline", expanded=False):
-        st.markdown("""
-        <div style="display: flex; gap: 8px; align-items: stretch; margin: 10px 0; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Stage 1</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Ingest & Classify</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">Intent & Entities</div>
-            </div>
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Stage 2</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Branch Router</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">Billing / Outage / FAQ</div>
-            </div>
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Stage 3</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Remediation & SLA</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">SRE Page / Credit Hold</div>
-            </div>
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Stage 4</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">ACID Audit Log</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">SQLite Ledger Record</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
     st.subheader("Step 1: Pick a Request Category & Scenario")
     st.caption("Click any category below. Clicking multiple times will cycle through realistic sample questions:")
 
@@ -453,32 +427,6 @@ else:
     st.subheader("Step 1: Select Risk Category & Scenario")
     st.caption("Choose from 30 realistic banking compliance cases or enter custom data:")
 
-    with st.expander("AML Aggregation Architecture: Multi-Source Synthesis", expanded=False):
-        st.markdown("""
-        <div style="display: flex; gap: 8px; align-items: stretch; margin: 10px 0; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Source Ingestion</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Transactions + KYC</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">CSV Ledger & Watchlists</div>
-            </div>
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Rule Engine</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Anomaly Detection</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">Structuring, OFAC & Havens</div>
-            </div>
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Scoring (0-100)</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Composite Scoring</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">PEP Multiplier & Tiers</div>
-            </div>
-            <div style="flex: 1; min-width: 130px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; text-align: center;">
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">SAR Action</div>
-                <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc; margin-top: 3px;">Compliance Report</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">AI Narrative & Dossier</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
     sel_col1, sel_col2 = st.columns([1, 1])
 
     with sel_col1:
@@ -629,12 +577,12 @@ else:
             ],
             "evaluated_transactions": [
                 {
-                    "tx_id": t.tx_id,
-                    "amount": t.amount,
-                    "source": t.source_country,
-                    "destination": t.destination_country,
-                    "type": t.tx_type,
-                    "date": t.date
+                    "tx_id": t.get("tx_id", "N/A"),
+                    "amount": t.get("amount", 0.0),
+                    "source": t.get("source_country", "N/A"),
+                    "destination": t.get("destination_country", "N/A"),
+                    "type": t.get("tx_type", "WIRE"),
+                    "date": t.get("date", "N/A")
                 }
                 for t in parsed_txs
             ]
@@ -651,7 +599,7 @@ else:
         if parsed_txs:
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             with st.expander("Jurisdictional Flow Analysis (Volume by Destination Country)", expanded=True):
-                corr_rows = [{"Destination": t.destination_country, "Amount": t.amount} for t in parsed_txs]
+                corr_rows = [{"Destination": t.get("destination_country", "Unknown"), "Amount": float(t.get("amount", 0.0))} for t in parsed_txs]
                 df_corr = pd.DataFrame(corr_rows).groupby("Destination")["Amount"].sum().reset_index()
                 df_corr = df_corr.sort_values(by="Amount", ascending=False)
 
