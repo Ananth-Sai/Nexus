@@ -228,7 +228,13 @@ class FinancialRiskAggregator:
             try:
                 from google import genai
                 from google.genai import types
-                client = genai.Client(api_key=api_key)
+                client = genai.Client(
+                    api_key=api_key,
+                    http_options=types.HttpOptions(
+                        timeout=15000,
+                        retry_options=types.HttpRetryOptions(attempts=1),
+                    ),
+                )
                 prompt = (
                     f"You are a Senior AML/CFT Compliance Officer. Write a concise, professional 3-sentence "
                     f"risk narrative for client {customer_name} ({account_id}).\n"
@@ -238,8 +244,8 @@ class FinancialRiskAggregator:
                     f"Conclude with why compliance analysts must focus on this case."
                 )
                 for model_id in (
-                    "gemini-3.8-flash",
                     "gemini-flash-lite-latest",
+                    "gemini-3.8-flash",
                     "gemini-3.7-flash",
                     "gemini-3.5-flash-lite",
                     "gemini-flash-latest",

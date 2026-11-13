@@ -146,7 +146,13 @@ class RequestClassifier:
                     entities: _GeminiEntities
                     summary_intent: str
 
-                client = genai.Client(api_key=api_key)
+                client = genai.Client(
+                    api_key=api_key,
+                    http_options=types.HttpOptions(
+                        timeout=15000,
+                        retry_options=types.HttpRetryOptions(attempts=1),
+                    ),
+                )
                 prompt = (
                     "Classify this customer request into one of three exact categories: 'Billing Dispute', "
                     "'Technical Escalation', or 'General Inquiry'. Urgency must be 'Critical', 'High', or 'Normal'. "
@@ -154,8 +160,8 @@ class RequestClassifier:
                     f"Request Text:\n{raw_text}\n"
                 )
                 for model_id in (
-                    "gemini-3.8-flash",
                     "gemini-flash-lite-latest",
+                    "gemini-3.8-flash",
                     "gemini-3.7-flash",
                     "gemini-3.5-flash-lite",
                     "gemini-flash-latest",
