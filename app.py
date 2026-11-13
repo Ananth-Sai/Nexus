@@ -383,7 +383,7 @@ if "Customer" in active_tab:
             "urgency": result.classification.urgency,
             "assigned_queue": result.assigned_queue,
             "sla_hours": result.sla_hours,
-            "extracted_entities": result.classification.extracted_entities,
+            "extracted_entities": getattr(result.classification, "key_entities", {}),
             "remediation_actions": [
                 {"step": s.step_number, "action": s.action_name, "detail": s.description}
                 for s in result.steps_executed
