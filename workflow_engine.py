@@ -149,7 +149,7 @@ class RequestClassifier:
                 client = genai.Client(
                     api_key=api_key,
                     http_options=types.HttpOptions(
-                        timeout=15000,
+                        timeout=10000,
                         retry_options=types.HttpRetryOptions(attempts=1),
                     ),
                 )
