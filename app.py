@@ -12,6 +12,16 @@ import streamlit as st
 import pandas as pd
 import importlib
 
+# Load local .env if present (without requiring python-dotenv)
+_env_path = os.path.join(os.path.dirname(__file__), ".env")
+if os.path.exists(_env_path):
+    with open(_env_path, "r", encoding="utf-8") as _ef:
+        for _line in _ef:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _v = _line.split("=", 1)
+                os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+
 import workflow_engine
 import risk_engine
 importlib.reload(workflow_engine)
@@ -681,11 +691,12 @@ else:
         st.info("Click the **'Evaluate Account Risk'** button above to run the fraud and AML detection engine on this account.")
 
 # Universal Enterprise Telemetry & Invariant Verification Footer
+_ai_mode = "Live Gemini 3.8 Flash + Offline Fallback Active" if os.environ.get("GEMINI_API_KEY", "").strip() else "Deterministic Offline Mode Active"
 st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown("""
+st.markdown(f"""
 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px 18px; font-size: 0.8rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-    <div>⚡ <strong>Nexus Runtime Engine:</strong> Deterministic Offline Mode Active &bull; SQLite ACID Persistence Verified</div>
+    <div>⚡ <strong>Nexus Runtime Engine:</strong> {_ai_mode} &bull; SQLite ACID Persistence Verified</div>
     <div><strong>Verification Invariants:</strong> 8 of 8 Automated Tests Passing (0.15s)</div>
 </div>
 """, unsafe_allow_html=True)

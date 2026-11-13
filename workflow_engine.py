@@ -129,26 +129,62 @@ class RequestClassifier:
         api_key = os.environ.get("GEMINI_API_KEY", "").strip()
         if api_key:
             try:
+                from typing import Literal
                 from google import genai
                 from google.genai import types
+
+                class _GeminiEntities(BaseModel):
+                    invoice_id: Optional[str] = None
+                    amount: Optional[str] = None
+                    service: Optional[str] = None
+                    error_code: Optional[str] = None
+
+                class _GeminiClassification(BaseModel):
+                    category: Literal["Billing Dispute", "Technical Escalation", "General Inquiry"]
+                    urgency: Literal["Critical", "High", "Normal"]
+                    confidence: float
+                    entities: _GeminiEntities
+                    summary_intent: str
+
                 client = genai.Client(api_key=api_key)
                 prompt = (
-                    "Classify this customer request into one of three categories: 'Billing Dispute', "
+                    "Classify this customer request into one of three exact categories: 'Billing Dispute', "
                     "'Technical Escalation', or 'General Inquiry'. Urgency must be 'Critical', 'High', or 'Normal'. "
                     "Extract entities (invoice_id, amount, service, error_code if present) and provide a one-sentence intent.\n\n"
                     f"Request Text:\n{raw_text}\n"
                 )
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=RequestClassification,
-                        temperature=0.0
-                    )
-                )
-                if response.parsed:
-                    return response.parsed
+                for model_id in (
+                    "gemini-3.8-flash",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.7-flash",
+                    "gemini-3.5-flash-lite",
+                    "gemini-flash-latest",
+                ):
+                    try:
+                        response = client.models.generate_content(
+                            model=model_id,
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                response_mime_type="application/json",
+                                response_schema=_GeminiClassification,
+                                temperature=0.0,
+                                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                            )
+                        )
+                        if response.parsed:
+                            parsed: _GeminiClassification = response.parsed
+                            entity_dict = {
+                                k: v for k, v in parsed.entities.model_dump().items() if v is not None and str(v).strip()
+                            }
+                            return RequestClassification(
+                                category=parsed.category,
+                                urgency=parsed.urgency,
+                                confidence=min(1.0, max(0.0, parsed.confidence)),
+                                key_entities=entity_dict,
+                                summary_intent=parsed.summary_intent,
+                            )
+                    except Exception:
+                        continue
             except Exception:
                 # Graceful fallback to deterministic engine on network/quota error
                 pass

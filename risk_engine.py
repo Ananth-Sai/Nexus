@@ -227,6 +227,7 @@ class FinancialRiskAggregator:
         if api_key:
             try:
                 from google import genai
+                from google.genai import types
                 client = genai.Client(api_key=api_key)
                 prompt = (
                     f"You are a Senior AML/CFT Compliance Officer. Write a concise, professional 3-sentence "
@@ -236,12 +237,26 @@ class FinancialRiskAggregator:
                     f"Flagged Risk Signals: {[s.rule_name for s in signals]}.\n"
                     f"Conclude with why compliance analysts must focus on this case."
                 )
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
-                )
-                if response.text:
-                    return response.text.strip()
+                for model_id in (
+                    "gemini-3.8-flash",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.7-flash",
+                    "gemini-3.5-flash-lite",
+                    "gemini-flash-latest",
+                ):
+                    try:
+                        response = client.models.generate_content(
+                            model=model_id,
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                temperature=0.2,
+                                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                            )
+                        )
+                        if response.text:
+                            return response.text.strip()
+                    except Exception:
+                        continue
             except Exception:
                 pass
 
